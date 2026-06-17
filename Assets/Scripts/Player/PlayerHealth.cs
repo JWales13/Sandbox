@@ -49,4 +49,12 @@ public class PlayerHealth : MonoBehaviour
         CurrentHealth = Mathf.Clamp(CurrentHealth + Mathf.Max(0, amount), 0, MaxHealth);
         OnHealthChanged?.Invoke();
     }
+
+    // Used by save/load to restore a specific HP value (after max is recalculated).
+    public void SetCurrent(int hp)
+    {
+        if (hp < 0) return; // -1 = leave at full
+        CurrentHealth = Mathf.Clamp(hp, 0, MaxHealth);
+        OnHealthChanged?.Invoke();
+    }
 }

@@ -8,6 +8,7 @@ public class SaveManager : MonoBehaviour
 {
     public PlayerProgression progression;
     public Inventory inventory;
+    public PlayerHealth playerHealth;
     public Transform player;
     public KeyCode saveKey = KeyCode.O;   // F-keys are intercepted by macOS
     public KeyCode loadKey = KeyCode.P;
@@ -25,11 +26,21 @@ public class SaveManager : MonoBehaviour
         var data = new GameSaveData();
         if (progression != null) data.progression = progression.CaptureState();
         if (inventory != null) data.inventory = inventory.CaptureState();
+        if (playerHealth != null) data.playerCurrentHealth = playerHealth.CurrentHealth;
         if (player != null)
         {
             data.playerPos = player.position;
             data.playerEuler = player.eulerAngles;
         }
+
+        data.farmPlots.Clear();
+        foreach (var plot in FindObjectsByType<FarmPlot>(FindObjectsSortMode.None))
+            data.farmPlots.Add(new FarmPlotSaveData
+            {
+                key = plot.SaveKey,
+                state = plot.StateIndex,
+                growTimer = plot.GrowTimer
+            });
 
         File.WriteAllText(FilePath, JsonUtility.ToJson(data, true));
         Debug.Log($"Game saved -> {FilePath}");
@@ -47,6 +58,15 @@ public class SaveManager : MonoBehaviour
         if (progression != null) progression.RestoreState(data.progression);
         if (inventory != null) inventory.RestoreState(data.inventory);
         if (player != null) TeleportPlayer(data.playerPos, data.playerEuler);
+
+        // After progression restore (so MaxHealth is correct), apply saved HP.
+        if (playerHealth != null) playerHealth.SetCurrent(data.playerCurrentHealth);
+
+        var plotMap = new System.Collections.Generic.Dictionary<string, FarmPlotSaveData>();
+        foreach (var pd in data.farmPlots) plotMap[pd.key] = pd;
+        foreach (var plot in FindObjectsByType<FarmPlot>(FindObjectsSortMode.None))
+            if (plotMap.TryGetValue(plot.SaveKey, out var pd))
+                plot.RestoreState(pd.state, pd.growTimer);
         Debug.Log("Game loaded.");
     }
 

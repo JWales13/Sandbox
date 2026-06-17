@@ -11,6 +11,16 @@ public class GameSaveData
     public InventorySaveData inventory = new InventorySaveData();
     public Vector3 playerPos;
     public Vector3 playerEuler;
+    public int playerCurrentHealth = -1;   // -1 = unset (use full health)
+    public List<FarmPlotSaveData> farmPlots = new List<FarmPlotSaveData>();
+}
+
+[System.Serializable]
+public class FarmPlotSaveData
+{
+    public string key;        // position-based identifier
+    public int state;         // 0 Empty, 1 Growing, 2 Ready
+    public float growTimer;
 }
 
 [System.Serializable]

@@ -12,6 +12,34 @@ public class FarmPlot : Interactable
     State state = State.Empty;
     float growTimer;
 
+    // ---- Save/load: position-based key + state capture/restore ----
+    public string SaveKey =>
+        $"{Mathf.RoundToInt(transform.position.x)}_{Mathf.RoundToInt(transform.position.y)}_{Mathf.RoundToInt(transform.position.z)}";
+    public int StateIndex => (int)state;
+    public float GrowTimer => growTimer;
+
+    public void RestoreState(int stateIndex, float timer)
+    {
+        state = (State)stateIndex;
+        growTimer = timer;
+
+        if (state == State.Empty)
+        {
+            ShowVisual(false);
+        }
+        else
+        {
+            ShowVisual(true);
+            if (crop != null && cropVisual != null)
+            {
+                float t = state == State.Ready
+                    ? 1f
+                    : Mathf.Clamp01(growTimer / Mathf.Max(0.01f, crop.growthSeconds));
+                cropVisual.localScale = Vector3.Lerp(crop.sproutScale, crop.fullScale, t);
+            }
+        }
+    }
+
     void Start()
     {
         state = State.Empty;
