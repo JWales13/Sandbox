@@ -17,14 +17,24 @@ public class PlayerCombat : MonoBehaviour
     [Header("Reach")]
     public float attackRange = 2.2f;
     public float attackRadius = 1.2f;
-    public float attackCooldown = 0.5f;
+    public float attackCooldown = 0.6f;
     public KeyCode attackKey = KeyCode.Mouse0;
+
+    [Header("Animation")]
+    public Animator animator;                 // the character model's Animator
+    public string attackTrigger = "Attack";
+    [Tooltip("Delay before the hit registers, so damage lands mid-swing.")]
+    public float hitDelay = 0.25f;
+
+    [Header("Facing")]
+    public PlayerController playerController;  // used for the attack direction
 
     float nextAttackTime;
 
     void Start()
     {
         if (progression == null) progression = PlayerProgression.Instance;
+        if (playerController == null) playerController = GetComponent<PlayerController>();
     }
 
     void Update()
@@ -40,9 +50,20 @@ public class PlayerCombat : MonoBehaviour
     void Attack()
     {
         nextAttackTime = Time.time + attackCooldown;
+        if (animator != null) animator.SetTrigger(attackTrigger);
+        Invoke(nameof(DealDamage), hitDelay);   // hit connects partway through the swing
+    }
+
+    void DealDamage()
+    {
         int dmg = ComputeDamage();
 
-        Vector3 center = transform.position + Vector3.up * 1.2f + transform.forward * (attackRange * 0.5f);
+        Vector3 facing = playerController != null ? playerController.FacingDirection : transform.forward;
+        facing.y = 0f;
+        if (facing.sqrMagnitude < 0.01f) facing = transform.forward;
+        facing.Normalize();
+
+        Vector3 center = transform.position + Vector3.up * 1.2f + facing * (attackRange * 0.5f);
         bool hitSomething = false;
 
         foreach (var col in Physics.OverlapSphere(center, attackRadius))
