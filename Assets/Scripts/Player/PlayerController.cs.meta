@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1bfc754ae3c654f5f9a9530347e10600
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - cameraPivot: {instanceID: 0}
+  - playerCamera: {instanceID: 0}
+  - animator: {instanceID: 0}
+  - characterModel: {fileID: 919132149155446097, guid: 0d8e76fa33dc2437aa40f0657ba94f09, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
