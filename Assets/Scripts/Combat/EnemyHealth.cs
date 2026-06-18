@@ -7,6 +7,8 @@ public class EnemyHealth : MonoBehaviour
     public int maxHealth = 30;
     public float respawnSeconds = 4f;
 
+    public bool IsAlive => !dead;
+
     int current;
     float flashUntil;
     Renderer[] renderers;

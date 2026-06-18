@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1559265534995161496}
   - component: {fileID: 4156234783435082845}
   - component: {fileID: 4905093119951971471}
+  - component: {fileID: 2430697630429318270}
   m_Layer: 0
   m_Name: TrainingDummy
   m_TagString: Untagged
@@ -129,3 +130,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
   maxHealth: 30
   respawnSeconds: 4
+--- !u!114 &2430697630429318270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4098826211337180155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec542ada6a2d545e7aa9900b6e78badf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
+  sightRange: 12
+  attackRange: 2
+  moveSpeed: 2.5
+  turnSpeed: 8
+  groundOffset: 1
+  attackDamage: 5
+  attackCooldown: 1.5
+  wanderRadius: 6
+  wanderInterval: 4
