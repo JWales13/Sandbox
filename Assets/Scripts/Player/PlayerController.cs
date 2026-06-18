@@ -75,6 +75,7 @@ public class PlayerController : MonoBehaviour
         Vector3 moveDir = Quaternion.Euler(0f, yaw, 0f) * input;
 
         float speed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
+        if (AttributeEffects.Instance != null) speed *= AttributeEffects.Instance.MoveSpeedMultiplier();
         Vector3 velocity = moveDir * speed;
 
         if (controller.isGrounded)

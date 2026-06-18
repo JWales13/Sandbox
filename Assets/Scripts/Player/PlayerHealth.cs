@@ -42,6 +42,11 @@ public class PlayerHealth : MonoBehaviour
     public void TakeDamage(int amount)
     {
         if (IsDead) return;
+
+        // Defense attribute reduces incoming damage.
+        if (AttributeEffects.Instance != null)
+            amount = Mathf.RoundToInt(amount * (1f - AttributeEffects.Instance.DamageReduction()));
+
         CurrentHealth = Mathf.Clamp(CurrentHealth - Mathf.Max(0, amount), 0, MaxHealth);
         OnHealthChanged?.Invoke();
 

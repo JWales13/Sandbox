@@ -826,6 +826,7 @@ GameObject:
   - component: {fileID: 360329346}
   - component: {fileID: 360329347}
   - component: {fileID: 360329348}
+  - component: {fileID: 360329349}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1075,6 +1076,23 @@ MonoBehaviour:
   playerController: {fileID: 360329337}
   playerInteractor: {fileID: 360329344}
   playerCombat: {fileID: 360329347}
+--- !u!114 &360329349
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 360329336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 694def8832f694abdb08f68c948c6d90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttributeEffects
+  progression: {fileID: 0}
+  defenseMaxReduction: 0.8
+  defenseK: 50
+  agilityMaxBonus: 0.4
+  agilityK: 20
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -3937,7 +3955,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2554343422115998862, guid: 8727f87af41df41fc8f65592c27f30c4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 9.98
+      value: -17.63
       objectReference: {fileID: 0}
     - target: {fileID: 2554343422115998862, guid: 8727f87af41df41fc8f65592c27f30c4, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3945,7 +3963,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2554343422115998862, guid: 8727f87af41df41fc8f65592c27f30c4, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 6.93
+      value: -0.82
       objectReference: {fileID: 0}
     - target: {fileID: 2554343422115998862, guid: 8727f87af41df41fc8f65592c27f30c4, type: 3}
       propertyPath: m_LocalRotation.w

@@ -6,7 +6,10 @@ public enum AttributeType
     Stamina,
     Charm,
     Luck,
-    Vitality    // scales max health (keep new entries at the END so old saves stay valid)
+    Vitality,   // scales max health
+    Defense,    // reduces damage taken (soft-capped)
+    Agility     // scales move speed (soft-capped)
+                // keep new entries at the END so old saves stay valid
 }
 
 // Granular things that perks can modify. Add entries as systems are built.
