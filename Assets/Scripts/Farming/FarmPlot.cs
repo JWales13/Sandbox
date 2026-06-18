@@ -102,8 +102,15 @@ public class FarmPlot : Interactable
         {
             if (PlayerProgression.Instance != null && crop.subskill != null)
                 PlayerProgression.Instance.AddSubskillXP(crop.subskill, crop.xpOnHarvest);
+
             if (Inventory.Instance != null && crop.produceItem != null)
-                Inventory.Instance.Add(crop.produceItem, crop.produceAmount);
+            {
+                int amount = crop.produceAmount;
+                // CropYield perks increase the harvest.
+                if (PlayerProgression.Instance != null)
+                    amount = Mathf.RoundToInt(amount * (1f + PlayerProgression.Instance.GetStat(StatType.CropYield)));
+                Inventory.Instance.Add(crop.produceItem, Mathf.Max(crop.produceAmount, amount));
+            }
         }
 
         state = State.Empty;

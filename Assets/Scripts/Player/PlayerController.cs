@@ -76,6 +76,7 @@ public class PlayerController : MonoBehaviour
 
         float speed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
         if (AttributeEffects.Instance != null) speed *= AttributeEffects.Instance.MoveSpeedMultiplier();
+        if (PlayerProgression.Instance != null) speed *= 1f + PlayerProgression.Instance.GetStat(StatType.MoveSpeed); // MoveSpeed perks
         Vector3 velocity = moveDir * speed;
 
         if (controller.isGrounded)

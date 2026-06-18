@@ -98,7 +98,13 @@ public class ShopUI : MonoBehaviour
     void Sell(ItemSO item)
     {
         if (Wallet.Instance == null || Inventory.Instance == null) return;
-        if (Inventory.Instance.Remove(item, 1)) Wallet.Instance.Add(item.sellPrice);
+        if (!Inventory.Instance.Remove(item, 1)) return;
+
+        int price = item.sellPrice;
+        // SellPrice perks (e.g. Merchant) raise how much you get.
+        if (PlayerProgression.Instance != null)
+            price = Mathf.RoundToInt(price * (1f + PlayerProgression.Instance.GetStat(StatType.SellPrice)));
+        Wallet.Instance.Add(price);
     }
 
     // ---------- UI building ----------
