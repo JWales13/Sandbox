@@ -805,6 +805,7 @@ GameObject:
   - component: {fileID: 360329345}
   - component: {fileID: 360329346}
   - component: {fileID: 360329347}
+  - component: {fileID: 360329348}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1036,48 +1037,24 @@ MonoBehaviour:
   attackTrigger: Attack
   hitDelay: 0.25
   playerController: {fileID: 0}
---- !u!1 &401449725 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
-  m_PrefabInstance: {fileID: 655670774}
-  m_PrefabAsset: {fileID: 0}
---- !u!136 &401449726
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 401449725}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 1
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &401449727
+--- !u!114 &360329348
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 401449725}
+  m_GameObject: {fileID: 360329336}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27596c36444944e29a4e8f721a755a92, type: 3}
+  m_Script: {fileID: 11500000, guid: 49cf4f5d2f546452bbc7fc7517385357, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
-  maxHealth: 30
-  respawnSeconds: 4
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerRespawn
+  health: {fileID: 0}
+  respawnPoint: {fileID: 1096036905}
+  respawnDelay: 2
+  playerController: {fileID: 360329337}
+  playerInteractor: {fileID: 360329344}
+  playerCombat: {fileID: 360329347}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -1450,69 +1427,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &655670774
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 9.710154
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.00000039568215
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 9.4914255
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
-      propertyPath: m_Name
-      value: Vampire A Lusth
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 401449727}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 401449726}
-  m_SourcePrefab: {fileID: 100100000, guid: 2e84647af6664467b9e62e0e63ed1e63, type: 3}
 --- !u!1 &745498688
 GameObject:
   m_ObjectHideFlags: 0
@@ -2174,6 +2088,37 @@ PrefabInstance:
       addedObject: {fileID: 1168148081}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0d8e76fa33dc2437aa40f0657ba94f09, type: 3}
+--- !u!1 &1096036904
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1096036905}
+  m_Layer: 0
+  m_Name: RespawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1096036905
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1096036904}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 25, y: 0.98777, z: 7.25338}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1114745409 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6011036630121576164, guid: 0ec1c69bd47ad864f96cc2b516f6cd4b, type: 3}
@@ -3301,4 +3246,4 @@ SceneRoots:
   - {fileID: 1731856486}
   - {fileID: 2056616786}
   - {fileID: 1184734369}
-  - {fileID: 655670774}
+  - {fileID: 1096036905}

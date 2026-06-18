@@ -1,3 +1,4 @@
+using System.Collections;
 using System.IO;
 using UnityEngine;
 
@@ -14,6 +15,22 @@ public class SaveManager : MonoBehaviour
     public KeyCode loadKey = KeyCode.P;
 
     string FilePath => Path.Combine(Application.persistentDataPath, "save.json");
+
+    void Start()
+    {
+        // If the menu chose "Continue", load the save once everything has initialized.
+        if (GameSession.LoadOnStart)
+        {
+            GameSession.LoadOnStart = false;
+            StartCoroutine(LoadNextFrame());
+        }
+    }
+
+    IEnumerator LoadNextFrame()
+    {
+        yield return null;   // let all other Start()/Awake() run first
+        Load();
+    }
 
     void Update()
     {
