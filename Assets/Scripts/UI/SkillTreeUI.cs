@@ -2,23 +2,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// A self-building skill-tree window. Press the toggle key to open it; it draws
-// one clickable node per perk (positioned by each perk's treePosition) with
-// connector lines for prerequisites, and colors nodes by state. Click an
-// available node to spend a discipline perk point.
+// Tabbed skill-tree window. One tab per discipline; clicking a tab rebuilds the
+// node graph for that discipline. Nodes are positioned by each perk's treePosition,
+// prerequisite lines are drawn, and clicking an available node spends a point from
+// that discipline's pool.
 public class SkillTreeUI : MonoBehaviour
 {
     [Header("Data")]
-    public DisciplineSO discipline;
+    public List<DisciplineSO> disciplines = new List<DisciplineSO>();
     public PlayerProgression progression;
 
     [Header("Scene references")]
-    public GameObject rootPanel;       // the window root (hidden until opened)
-    public RectTransform treeRoot;     // container the nodes/lines are drawn in
-    public Text pointsLabel;           // shows this discipline's perk points
+    public GameObject rootPanel;
+    public RectTransform tabContainer;   // top bar for discipline tabs (gets a HorizontalLayoutGroup)
+    public RectTransform treeRoot;       // nodes/lines are drawn here
+    public Text pointsLabel;
     public KeyCode toggleKey = KeyCode.K;
 
-    [Header("Disabled while the tree is open")]
+    [Header("Disabled while open")]
     public PlayerController playerController;
     public PlayerInteractor playerInteractor;
 
@@ -30,8 +31,10 @@ public class SkillTreeUI : MonoBehaviour
     public Color lineColor = new Color(1f, 1f, 1f, 0.4f);
 
     readonly Dictionary<SkillPerkSO, Image> nodes = new Dictionary<SkillPerkSO, Image>();
+    readonly List<GameObject> spawned = new List<GameObject>();   // current tree's nodes + lines
+    DisciplineSO active;
     Font font;
-    bool built;
+    bool tabsBuilt;
     bool isOpen;
 
     void Start()
@@ -55,25 +58,76 @@ public class SkillTreeUI : MonoBehaviour
     public void Toggle()
     {
         isOpen = !isOpen;
-        if (isOpen && !built) Build();
-        if (rootPanel != null) rootPanel.SetActive(isOpen);
 
+        if (isOpen)
+        {
+            if (!tabsBuilt) BuildTabs();
+            if (active == null && disciplines.Count > 0) SwitchTo(disciplines[0]);
+        }
+
+        if (rootPanel != null) rootPanel.SetActive(isOpen);
         Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = isOpen;
-
         if (playerController != null) playerController.enabled = !isOpen;
         if (playerInteractor != null) playerInteractor.enabled = !isOpen;
 
         if (isOpen) Refresh();
     }
 
-    void Build()
+    void BuildTabs()
     {
-        built = true;
-        if (discipline == null || treeRoot == null) return;
+        tabsBuilt = true;
+        var parent = tabContainer != null ? tabContainer : treeRoot;
+        if (parent == null) return;
 
-        // Lines first so they render behind the nodes.
-        foreach (var s in discipline.subskills)
+        if (tabContainer != null && tabContainer.GetComponent<HorizontalLayoutGroup>() == null)
+        {
+            var h = tabContainer.gameObject.AddComponent<HorizontalLayoutGroup>();
+            h.spacing = 6; h.padding = new RectOffset(6, 6, 6, 6);
+            h.childControlWidth = true; h.childControlHeight = true; h.childForceExpandWidth = false;
+        }
+
+        foreach (var d in disciplines)
+        {
+            if (d == null) continue;
+            var captured = d;
+
+            var go = new GameObject(d.displayName + " Tab", typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
+            go.transform.SetParent(parent, false);
+            var le = go.GetComponent<LayoutElement>(); le.minWidth = 120; le.minHeight = 32;
+            go.GetComponent<Image>().color = new Color(0.20f, 0.20f, 0.25f);
+
+            var label = MakeText(d.displayName, 16, TextAnchor.MiddleCenter);
+            var lrt = (RectTransform)label.transform;
+            lrt.SetParent(go.transform, false);
+            lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
+            lrt.offsetMin = Vector2.zero; lrt.offsetMax = Vector2.zero;
+            label.raycastTarget = false;
+
+            go.GetComponent<Button>().onClick.AddListener(() => SwitchTo(captured));
+        }
+    }
+
+    public void SwitchTo(DisciplineSO d)
+    {
+        active = d;
+        ClearTree();
+        BuildTree(d);
+        Refresh();
+    }
+
+    void ClearTree()
+    {
+        foreach (var go in spawned) if (go != null) Destroy(go);
+        spawned.Clear();
+        nodes.Clear();
+    }
+
+    void BuildTree(DisciplineSO d)
+    {
+        if (d == null || treeRoot == null) return;
+
+        foreach (var s in d.subskills)
         {
             if (s == null) continue;
             foreach (var p in s.perks)
@@ -84,7 +138,7 @@ public class SkillTreeUI : MonoBehaviour
             }
         }
 
-        foreach (var s in discipline.subskills)
+        foreach (var s in d.subskills)
         {
             if (s == null) continue;
             foreach (var p in s.perks)
@@ -102,6 +156,7 @@ public class SkillTreeUI : MonoBehaviour
         rt.anchoredPosition = perk.treePosition;
 
         nodes[perk] = go.GetComponent<Image>();
+        spawned.Add(go);
 
         go.GetComponent<Button>().onClick.AddListener(() =>
         {
@@ -141,14 +196,24 @@ public class SkillTreeUI : MonoBehaviour
         var img = go.GetComponent<Image>();
         img.color = lineColor;
         img.raycastTarget = false;
+
+        spawned.Add(go);
+    }
+
+    Text MakeText(string s, int size, TextAnchor align)
+    {
+        var go = new GameObject("Text", typeof(RectTransform), typeof(Text));
+        var t = go.GetComponent<Text>();
+        t.text = s; t.font = font; t.fontSize = size; t.color = Color.white; t.alignment = align;
+        return t;
     }
 
     void Refresh()
     {
         if (progression == null) return;
 
-        if (discipline != null && pointsLabel != null)
-            pointsLabel.text = $"{discipline.displayName} — Perk Points: {progression.GetPerkPoints(discipline)}";
+        if (pointsLabel != null && active != null)
+            pointsLabel.text = $"{active.displayName} — Perk Points: {progression.GetPerkPoints(active)}";
 
         foreach (var kv in nodes)
         {

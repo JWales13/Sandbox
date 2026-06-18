@@ -17,4 +17,5 @@ MonoBehaviour:
   baseXP: 100
   exponent: 1.5
   maxLevel: 100
-  perks: []
+  perks:
+  - {fileID: 11400000, guid: 84f998c013aee4faf901234239db5a04, type: 2}
