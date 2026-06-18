@@ -11,4 +11,9 @@ public class ItemSO : ScriptableObject
     public int maxStack = 99;
     public int sellPrice = 1;        // coins the player gets when selling one
     public int buyPrice = 2;         // coins the shop charges to buy one
+
+    [Header("Consumable")]
+    public bool isEdible = false;
+    public int healthRestore = 0;
+    public int staminaRestore = 0;   // used once a stamina pool exists
 }

@@ -74,7 +74,7 @@ public class InventoryUI : MonoBehaviour
         if (inventory == null || slotContainer == null) return;
         if (titleLabel != null) titleLabel.text = "Inventory";
 
-        while (cells.Count < inventory.slots.Count) cells.Add(CreateCell());
+        while (cells.Count < inventory.slots.Count) cells.Add(CreateCell(cells.Count));
 
         for (int i = 0; i < cells.Count; i++)
         {
@@ -101,11 +101,26 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
-    GameObject CreateCell()
+    // Clicking a slot uses its item. For now: edible items are eaten.
+    void UseSlot(int index)
     {
-        var cell = new GameObject("Slot", typeof(RectTransform), typeof(Image));
+        if (inventory == null || index < 0 || index >= inventory.slots.Count) return;
+        var slot = inventory.slots[index];
+        if (slot.IsEmpty || !slot.item.isEdible) return;
+
+        var hp = PlayerHealth.Instance;
+        if (hp == null || hp.CurrentHealth >= hp.MaxHealth) return;   // don't waste food at full health
+
+        hp.Heal(slot.item.healthRestore);
+        inventory.Remove(slot.item, 1);
+    }
+
+    GameObject CreateCell(int index)
+    {
+        var cell = new GameObject("Slot", typeof(RectTransform), typeof(Image), typeof(Button));
         cell.transform.SetParent(slotContainer, false);
         cell.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.4f);
+        cell.GetComponent<Button>().onClick.AddListener(() => UseSlot(index));
 
         var iconGO = new GameObject("Icon", typeof(RectTransform), typeof(Image));
         var irt = (RectTransform)iconGO.transform;

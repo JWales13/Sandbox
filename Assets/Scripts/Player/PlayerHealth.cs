@@ -16,6 +16,10 @@ public class PlayerHealth : MonoBehaviour
     public event Action OnHealthChanged;
     public event Action OnDied;
 
+    public static PlayerHealth Instance { get; private set; }
+
+    void Awake() { Instance = this; }
+
     void Start()
     {
         if (progression == null) progression = PlayerProgression.Instance;
