@@ -53,7 +53,6 @@ public class PlayerController : MonoBehaviour
         HandleMove();
 
         if (Input.GetKeyDown(toggleViewKey)) { firstPerson = !firstPerson; ApplyCameraView(); }
-        if (Input.GetKeyDown(KeyCode.Escape)) Cursor.lockState = CursorLockMode.None;
     }
 
     void HandleLook()
