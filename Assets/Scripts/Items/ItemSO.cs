@@ -9,5 +9,6 @@ public class ItemSO : ScriptableObject
     [TextArea] public string description;
     public Sprite icon;              // optional; UI falls back to the name if empty
     public int maxStack = 99;
-    public int sellPrice = 1;        // used by the Merchant system later
+    public int sellPrice = 1;        // coins the player gets when selling one
+    public int buyPrice = 2;         // coins the shop charges to buy one
 }

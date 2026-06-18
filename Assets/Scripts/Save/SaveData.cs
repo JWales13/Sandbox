@@ -12,6 +12,7 @@ public class GameSaveData
     public Vector3 playerPos;
     public Vector3 playerEuler;
     public int playerCurrentHealth = -1;   // -1 = unset (use full health)
+    public int coins = -1;                 // -1 = unset (leave wallet as-is)
     public List<FarmPlotSaveData> farmPlots = new List<FarmPlotSaveData>();
 }
 

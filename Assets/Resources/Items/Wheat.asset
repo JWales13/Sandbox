@@ -17,3 +17,4 @@ MonoBehaviour:
   icon: {fileID: 0}
   maxStack: 99
   sellPrice: 5
+  buyPrice: 12

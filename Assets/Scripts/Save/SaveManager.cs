@@ -10,9 +10,8 @@ public class SaveManager : MonoBehaviour
     public PlayerProgression progression;
     public Inventory inventory;
     public PlayerHealth playerHealth;
+    public Wallet wallet;
     public Transform player;
-    public KeyCode saveKey = KeyCode.O;   // F-keys are intercepted by macOS
-    public KeyCode loadKey = KeyCode.P;
 
     string FilePath => Path.Combine(Application.persistentDataPath, "save.json");
 
@@ -32,18 +31,13 @@ public class SaveManager : MonoBehaviour
         Load();
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(saveKey)) Save();
-        if (Input.GetKeyDown(loadKey)) Load();
-    }
-
     public void Save()
     {
         var data = new GameSaveData();
         if (progression != null) data.progression = progression.CaptureState();
         if (inventory != null) data.inventory = inventory.CaptureState();
         if (playerHealth != null) data.playerCurrentHealth = playerHealth.CurrentHealth;
+        if (wallet != null) data.coins = wallet.coins;
         if (player != null)
         {
             data.playerPos = player.position;
@@ -78,6 +72,7 @@ public class SaveManager : MonoBehaviour
 
         // After progression restore (so MaxHealth is correct), apply saved HP.
         if (playerHealth != null) playerHealth.SetCurrent(data.playerCurrentHealth);
+        if (wallet != null && data.coins >= 0) wallet.SetCoins(data.coins);
 
         var plotMap = new System.Collections.Generic.Dictionary<string, FarmPlotSaveData>();
         foreach (var pd in data.farmPlots) plotMap[pd.key] = pd;
