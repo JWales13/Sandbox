@@ -12,7 +12,9 @@ public class PlayerHealth : MonoBehaviour
 
     public int MaxHealth { get; private set; }
     public int CurrentHealth { get; private set; }
+    public bool IsDead { get; private set; }
     public event Action OnHealthChanged;
+    public event Action OnDied;
 
     void Start()
     {
@@ -39,14 +41,29 @@ public class PlayerHealth : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
+        if (IsDead) return;
         CurrentHealth = Mathf.Clamp(CurrentHealth - Mathf.Max(0, amount), 0, MaxHealth);
         OnHealthChanged?.Invoke();
-        // (Death handling comes with combat.)
+
+        if (CurrentHealth <= 0)
+        {
+            IsDead = true;
+            OnDied?.Invoke();
+        }
     }
 
     public void Heal(int amount)
     {
+        if (IsDead) return;
         CurrentHealth = Mathf.Clamp(CurrentHealth + Mathf.Max(0, amount), 0, MaxHealth);
+        OnHealthChanged?.Invoke();
+    }
+
+    // Bring the player back to life at full health (used on respawn).
+    public void Revive()
+    {
+        IsDead = false;
+        CurrentHealth = MaxHealth;
         OnHealthChanged?.Invoke();
     }
 
