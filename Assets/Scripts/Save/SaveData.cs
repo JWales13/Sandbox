@@ -1,27 +1,34 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Plain serializable containers for JsonUtility. Dictionaries aren't supported,
-// so progression state is flattened into lists of key/value entries.
-
+// On-disk save: a flat list of id -> json entries, one per ISaveable.
 [System.Serializable]
-public class GameSaveData
+public class SaveFile
 {
-    public ProgressionSaveData progression = new ProgressionSaveData();
-    public InventorySaveData inventory = new InventorySaveData();
-    public Vector3 playerPos;
-    public Vector3 playerEuler;
-    public int playerCurrentHealth = -1;   // -1 = unset (use full health)
-    public int coins = -1;                 // -1 = unset (leave wallet as-is)
-    public List<FarmPlotSaveData> farmPlots = new List<FarmPlotSaveData>();
+    public List<SaveEntry> entries = new List<SaveEntry>();
 }
 
 [System.Serializable]
-public class FarmPlotSaveData
+public class SaveEntry
 {
-    public string key;        // position-based identifier
-    public int state;         // 0 Empty, 1 Growing, 2 Ready
-    public float growTimer;
+    public string id;
+    public string json;
+}
+
+// ---- Per-system serializable payloads (each ISaveable JSON-serializes one of these) ----
+
+[System.Serializable]
+public class ProgressionSaveData
+{
+    public int characterLevel = 1;
+    public int characterXpIntoLevel;
+    public int attributePoints;
+
+    public List<IntEntry> attributes = new List<IntEntry>();
+    public List<StringIntEntry> perkPoints = new List<StringIntEntry>();
+    public List<StringIntEntry> subskillLevels = new List<StringIntEntry>();
+    public List<StringIntEntry> subskillXp = new List<StringIntEntry>();
+    public List<string> unlockedPerks = new List<string>();
 }
 
 [System.Serializable]
@@ -33,34 +40,26 @@ public class InventorySaveData
 [System.Serializable]
 public class ItemStackData
 {
-    public string itemName;   // ItemSO asset name; empty = empty slot
+    public string itemName;
     public int count;
 }
 
 [System.Serializable]
-public class ProgressionSaveData
+public class FarmPlotSaveData
 {
-    public int characterLevel = 1;
-    public int characterXpIntoLevel;
-    public int attributePoints;
-
-    public List<IntEntry> attributes = new List<IntEntry>();        // key = (int)AttributeType
-    public List<StringIntEntry> perkPoints = new List<StringIntEntry>();    // key = discipline asset name
-    public List<StringIntEntry> subskillLevels = new List<StringIntEntry>(); // key = subskill asset name
-    public List<StringIntEntry> subskillXp = new List<StringIntEntry>();     // key = subskill asset name
-    public List<string> unlockedPerks = new List<string>();         // perk asset names
+    public int state;
+    public float growTimer;
 }
 
 [System.Serializable]
-public class IntEntry
+public class TransformState
 {
-    public int key;
-    public int value;
+    public Vector3 pos;
+    public Vector3 euler;
 }
 
 [System.Serializable]
-public class StringIntEntry
-{
-    public string key;
-    public int value;
-}
+public class IntEntry { public int key; public int value; }
+
+[System.Serializable]
+public class StringIntEntry { public string key; public int value; }

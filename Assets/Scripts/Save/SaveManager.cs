@@ -1,23 +1,18 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
-// Saves/loads the game to a JSON file on disk.
-//   F5 = save, F9 = load (configurable).
-// Persists progression state + the player's position and facing.
+// Generic save/load. Finds every ISaveable in the scene and writes an id -> json
+// blob. Adding a new saveable system requires NO changes here — just implement
+// ISaveable on the component.
 public class SaveManager : MonoBehaviour
 {
-    public PlayerProgression progression;
-    public Inventory inventory;
-    public PlayerHealth playerHealth;
-    public Wallet wallet;
-    public Transform player;
-
     string FilePath => Path.Combine(Application.persistentDataPath, "save.json");
 
     void Start()
     {
-        // If the menu chose "Continue", load the save once everything has initialized.
         if (GameSession.LoadOnStart)
         {
             GameSession.LoadOnStart = false;
@@ -31,64 +26,38 @@ public class SaveManager : MonoBehaviour
         Load();
     }
 
+    static IEnumerable<ISaveable> FindSaveables()
+    {
+        return FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ISaveable>();
+    }
+
     public void Save()
     {
-        var data = new GameSaveData();
-        if (progression != null) data.progression = progression.CaptureState();
-        if (inventory != null) data.inventory = inventory.CaptureState();
-        if (playerHealth != null) data.playerCurrentHealth = playerHealth.CurrentHealth;
-        if (wallet != null) data.coins = wallet.coins;
-        if (player != null)
-        {
-            data.playerPos = player.position;
-            data.playerEuler = player.eulerAngles;
-        }
+        var file = new SaveFile();
+        foreach (var s in FindSaveables())
+            file.entries.Add(new SaveEntry { id = s.SaveId, json = s.WriteState() });
 
-        data.farmPlots.Clear();
-        foreach (var plot in FindObjectsByType<FarmPlot>(FindObjectsSortMode.None))
-            data.farmPlots.Add(new FarmPlotSaveData
-            {
-                key = plot.SaveKey,
-                state = plot.StateIndex,
-                growTimer = plot.GrowTimer
-            });
-
-        File.WriteAllText(FilePath, JsonUtility.ToJson(data, true));
-        Debug.Log($"Game saved -> {FilePath}");
+        File.WriteAllText(FilePath, JsonUtility.ToJson(file, true));
+        Debug.Log($"Game saved ({file.entries.Count} objects) -> {FilePath}");
     }
 
     public void Load()
     {
         if (!File.Exists(FilePath))
         {
-            Debug.LogWarning("No save file found yet. Press save first.");
+            Debug.LogWarning("No save file found yet.");
             return;
         }
 
-        var data = JsonUtility.FromJson<GameSaveData>(File.ReadAllText(FilePath));
-        if (progression != null) progression.RestoreState(data.progression);
-        if (inventory != null) inventory.RestoreState(data.inventory);
-        if (player != null) TeleportPlayer(data.playerPos, data.playerEuler);
+        var file = JsonUtility.FromJson<SaveFile>(File.ReadAllText(FilePath));
+        var map = new Dictionary<string, string>();
+        foreach (var e in file.entries) map[e.id] = e.json;
 
-        // After progression restore (so MaxHealth is correct), apply saved HP.
-        if (playerHealth != null) playerHealth.SetCurrent(data.playerCurrentHealth);
-        if (wallet != null && data.coins >= 0) wallet.SetCoins(data.coins);
+        // Progression first, so MaxHealth is recalculated before health/other systems load.
+        foreach (var s in FindSaveables().OrderBy(s => s.SaveId == "progression" ? 0 : 1))
+            if (map.TryGetValue(s.SaveId, out var json))
+                s.ReadState(json);
 
-        var plotMap = new System.Collections.Generic.Dictionary<string, FarmPlotSaveData>();
-        foreach (var pd in data.farmPlots) plotMap[pd.key] = pd;
-        foreach (var plot in FindObjectsByType<FarmPlot>(FindObjectsSortMode.None))
-            if (plotMap.TryGetValue(plot.SaveKey, out var pd))
-                plot.RestoreState(pd.state, pd.growTimer);
         Debug.Log("Game loaded.");
-    }
-
-    // A CharacterController fights direct position changes, so disable it briefly.
-    void TeleportPlayer(Vector3 pos, Vector3 euler)
-    {
-        var cc = player.GetComponent<CharacterController>();
-        if (cc != null) cc.enabled = false;
-        player.position = pos;
-        player.eulerAngles = new Vector3(0f, euler.y, 0f);
-        if (cc != null) cc.enabled = true;
     }
 }

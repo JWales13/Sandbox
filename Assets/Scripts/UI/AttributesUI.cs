@@ -3,18 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// A self-building attributes screen (toggle with C). Lists every attribute with
-// its value and a + button to spend attribute points. Disables player control
-// while open. New attributes added to the enum appear automatically.
+// Self-building attributes screen (toggle with C). Lists every attribute with its
+// value and a + button to spend attribute points. Built via UIBuilder; new enum
+// entries appear automatically.
 public class AttributesUI : MonoBehaviour
 {
     [Header("Data")]
     public PlayerProgression progression;
 
-    [Header("Scene references")]
-    public GameObject rootPanel;
-    public RectTransform rowContainer;   // gets a VerticalLayoutGroup
-    public Text pointsLabel;
+    [Header("References")]
+    public GameObject panel;
     public KeyCode toggleKey = KeyCode.C;
 
     [Header("Disabled while open")]
@@ -23,16 +21,14 @@ public class AttributesUI : MonoBehaviour
 
     readonly Dictionary<AttributeType, Text> valueTexts = new Dictionary<AttributeType, Text>();
     readonly List<Button> plusButtons = new List<Button>();
-    Font font;
-    bool built;
-    bool isOpen;
+    Text pointsLabel;
+    bool built, isOpen;
 
     void Start()
     {
         if (progression == null) progression = PlayerProgression.Instance;
         if (progression != null) progression.OnChanged += Refresh;
-        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        if (rootPanel != null) rootPanel.SetActive(false);
+        if (panel != null) panel.SetActive(false);
     }
 
     void OnDestroy()
@@ -49,7 +45,7 @@ public class AttributesUI : MonoBehaviour
     {
         isOpen = !isOpen;
         if (isOpen && !built) Build();
-        if (rootPanel != null) rootPanel.SetActive(isOpen);
+        if (panel != null) panel.SetActive(isOpen);
 
         Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = isOpen;
@@ -62,60 +58,54 @@ public class AttributesUI : MonoBehaviour
     void Build()
     {
         built = true;
-        if (rowContainer == null) return;
+        if (panel == null) return;
 
-        var v = rowContainer.GetComponent<VerticalLayoutGroup>();
-        if (v == null) v = rowContainer.gameObject.AddComponent<VerticalLayoutGroup>();
-        v.spacing = 8;
-        v.padding = new RectOffset(12, 12, 12, 12);
-        v.childControlWidth = true; v.childControlHeight = true;
-        v.childForceExpandWidth = true; v.childForceExpandHeight = false;
+        UIBuilder.SizeWindow(panel, new Vector2(0.3f, 0.16f), new Vector2(0.7f, 0.84f));
+
+        UIBuilder.AnchoredLabel(panel.transform, "Attributes", 30, TextAnchor.MiddleCenter,
+            new Vector2(0.5f, 1f), new Vector2(0, -16), new Vector2(500, 40), true);
+        pointsLabel = UIBuilder.AnchoredLabel(panel.transform, "", 18, TextAnchor.MiddleCenter,
+            new Vector2(0.5f, 1f), new Vector2(0, -56), new Vector2(500, 30), true);
+
+        var list = UIBuilder.VerticalList(panel.transform, "AttrList",
+            new Vector2(0.08f, 0.12f), new Vector2(0.92f, 0.80f), Vector4.zero);
 
         foreach (AttributeType a in Enum.GetValues(typeof(AttributeType)))
-            CreateRow(a);
+            CreateRow(list, a);
+
+        var close = UIBuilder.Button(panel.transform, "Close", Close);
+        var crt = (RectTransform)close.transform;
+        crt.anchorMin = crt.anchorMax = crt.pivot = new Vector2(0.5f, 0f);
+        crt.anchoredPosition = new Vector2(0, 16);
+        crt.sizeDelta = new Vector2(150, 38);
     }
 
-    void CreateRow(AttributeType a)
+    void CreateRow(RectTransform list, AttributeType a)
     {
         var row = new GameObject(a.ToString(), typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
-        row.transform.SetParent(rowContainer, false);
+        row.transform.SetParent(list, false);
         var hl = row.GetComponent<HorizontalLayoutGroup>();
-        hl.spacing = 10;
-        hl.childControlWidth = true; hl.childControlHeight = true;
-        hl.childForceExpandWidth = false;
-        row.GetComponent<LayoutElement>().minHeight = 40;
+        hl.spacing = 10; hl.childControlWidth = true; hl.childControlHeight = true; hl.childForceExpandWidth = false;
+        row.GetComponent<LayoutElement>().minHeight = 42;
 
-        var valueTxt = MakeText($"{a}: 0", 20, TextAnchor.MiddleLeft);
-        valueTxt.transform.SetParent(row.transform, false);
-        var le = valueTxt.gameObject.AddComponent<LayoutElement>();
-        le.minWidth = 240;
-        valueTexts[a] = valueTxt;
-
-        var btnGO = new GameObject("Plus", typeof(RectTransform), typeof(Image), typeof(Button));
-        btnGO.transform.SetParent(row.transform, false);
-        var ble = btnGO.AddComponent<LayoutElement>();
-        ble.minWidth = 50; ble.minHeight = 36;
-        btnGO.GetComponent<Image>().color = new Color(0.25f, 0.5f, 0.9f);
-
-        var plusTxt = MakeText("+", 22, TextAnchor.MiddleCenter);
-        plusTxt.transform.SetParent(btnGO.transform, false);
-        var prt = (RectTransform)plusTxt.transform;
-        prt.anchorMin = Vector2.zero; prt.anchorMax = Vector2.one;
-        prt.offsetMin = Vector2.zero; prt.offsetMax = Vector2.zero;
-        plusTxt.raycastTarget = false;
+        var val = UIBuilder.Label(row.transform, $"{a}: 0", 20, TextAnchor.MiddleLeft);
+        var le = val.gameObject.AddComponent<LayoutElement>(); le.minWidth = 260; le.flexibleWidth = 1;
+        valueTexts[a] = val;
 
         AttributeType captured = a;
-        var btn = btnGO.GetComponent<Button>();
-        btn.onClick.AddListener(() => { progression.InvestAttribute(captured); Refresh(); });
-        plusButtons.Add(btn);
+        var plus = UIBuilder.Button(row.transform, "+", () => { progression.InvestAttribute(captured); Refresh(); }, 22);
+        var ble = plus.gameObject.AddComponent<LayoutElement>(); ble.minWidth = 54; ble.minHeight = 36;
+        plusButtons.Add(plus);
     }
 
-    Text MakeText(string s, int size, TextAnchor align)
+    public void Close()
     {
-        var go = new GameObject("Text", typeof(RectTransform), typeof(Text));
-        var t = go.GetComponent<Text>();
-        t.text = s; t.font = font; t.fontSize = size; t.color = Color.white; t.alignment = align;
-        return t;
+        isOpen = false;
+        if (panel != null) panel.SetActive(false);
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        if (playerController != null) playerController.enabled = true;
+        if (playerInteractor != null) playerInteractor.enabled = true;
     }
 
     void Refresh()
@@ -127,7 +117,6 @@ public class AttributesUI : MonoBehaviour
             kv.Value.text = $"{kv.Key}: {progression.GetAttribute(kv.Key)}";
 
         bool hasPoints = progression.AttributePoints > 0;
-        foreach (var b in plusButtons)
-            b.interactable = hasPoints;
+        foreach (var b in plusButtons) b.interactable = hasPoints;
     }
 }

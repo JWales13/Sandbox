@@ -2,21 +2,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Tabbed skill-tree window. One tab per discipline; clicking a tab rebuilds the
-// node graph for that discipline. Nodes are positioned by each perk's treePosition,
-// prerequisite lines are drawn, and clicking an available node spends a point from
-// that discipline's pool.
+// Tabbed skill-tree window, built and laid out in code via UIBuilder/UITheme.
+// One tab per discipline; switching rebuilds the node graph for that discipline.
+// Nodes are positioned by each perk's treePosition (× nodeSpacing); prerequisite
+// lines are drawn; clicking an available node spends a point from that discipline.
 public class SkillTreeUI : MonoBehaviour
 {
     [Header("Data")]
     public List<DisciplineSO> disciplines = new List<DisciplineSO>();
     public PlayerProgression progression;
 
-    [Header("Scene references")]
+    [Header("References")]
     public GameObject rootPanel;
-    public RectTransform tabContainer;   // top bar for discipline tabs (gets a HorizontalLayoutGroup)
-    public RectTransform treeRoot;       // nodes/lines are drawn here
-    public Text pointsLabel;
     public KeyCode toggleKey = KeyCode.K;
 
     [Header("Disabled while open")]
@@ -24,24 +21,24 @@ public class SkillTreeUI : MonoBehaviour
     public PlayerInteractor playerInteractor;
 
     [Header("Style")]
-    public Vector2 nodeSize = new Vector2(150, 60);
+    public Vector2 nodeSize = new Vector2(200, 75);
+    public float nodeSpacing = 1.5f;
     public Color unlockedColor = new Color(0.20f, 0.70f, 0.30f);
     public Color availableColor = new Color(0.85f, 0.75f, 0.20f);
     public Color lockedColor = new Color(0.30f, 0.30f, 0.30f);
     public Color lineColor = new Color(1f, 1f, 1f, 0.4f);
 
     readonly Dictionary<SkillPerkSO, Image> nodes = new Dictionary<SkillPerkSO, Image>();
-    readonly List<GameObject> spawned = new List<GameObject>();   // current tree's nodes + lines
+    readonly List<GameObject> spawned = new List<GameObject>();
+    RectTransform tabContainer, treeRoot;
+    Text pointsLabel;
     DisciplineSO active;
-    Font font;
-    bool tabsBuilt;
-    bool isOpen;
+    bool built, isOpen;
 
     void Start()
     {
         if (progression == null) progression = PlayerProgression.Instance;
         if (progression != null) progression.OnChanged += Refresh;
-        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         if (rootPanel != null) rootPanel.SetActive(false);
     }
 
@@ -61,7 +58,7 @@ public class SkillTreeUI : MonoBehaviour
 
         if (isOpen)
         {
-            if (!tabsBuilt) BuildTabs();
+            if (!built) Build();
             if (active == null && disciplines.Count > 0) SwitchTo(disciplines[0]);
         }
 
@@ -74,37 +71,32 @@ public class SkillTreeUI : MonoBehaviour
         if (isOpen) Refresh();
     }
 
-    void BuildTabs()
+    void Build()
     {
-        tabsBuilt = true;
-        var parent = tabContainer != null ? tabContainer : treeRoot;
-        if (parent == null) return;
+        built = true;
+        if (rootPanel == null) return;
 
-        if (tabContainer != null && tabContainer.GetComponent<HorizontalLayoutGroup>() == null)
-        {
-            var h = tabContainer.gameObject.AddComponent<HorizontalLayoutGroup>();
-            h.spacing = 6; h.padding = new RectOffset(6, 6, 6, 6);
-            h.childControlWidth = true; h.childControlHeight = true; h.childForceExpandWidth = false;
-        }
+        UIBuilder.SizeWindow(rootPanel, new Vector2(0.15f, 0.12f), new Vector2(0.85f, 0.88f));
+
+        tabContainer = UIBuilder.Area(rootPanel.transform, "TabBar",
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector4(12, -64, 12, 12)); // top strip
+        var h = tabContainer.gameObject.AddComponent<HorizontalLayoutGroup>();
+        h.spacing = 6; h.padding = new RectOffset(6, 6, 6, 6);
+        h.childControlWidth = true; h.childControlHeight = true; h.childForceExpandWidth = false;
+
+        treeRoot = UIBuilder.Area(rootPanel.transform, "TreeArea",
+            new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector4(12, 50, 12, 74)); // below tabs, above footer
+
+        pointsLabel = UIBuilder.AnchoredLabel(rootPanel.transform, "", 18, TextAnchor.MiddleCenter,
+            new Vector2(0.5f, 0f), new Vector2(0, 14), new Vector2(520, 30), true);
 
         foreach (var d in disciplines)
         {
             if (d == null) continue;
             var captured = d;
-
-            var go = new GameObject(d.displayName + " Tab", typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
-            go.transform.SetParent(parent, false);
-            var le = go.GetComponent<LayoutElement>(); le.minWidth = 120; le.minHeight = 32;
-            go.GetComponent<Image>().color = new Color(0.20f, 0.20f, 0.25f);
-
-            var label = MakeText(d.displayName, 16, TextAnchor.MiddleCenter);
-            var lrt = (RectTransform)label.transform;
-            lrt.SetParent(go.transform, false);
-            lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
-            lrt.offsetMin = Vector2.zero; lrt.offsetMax = Vector2.zero;
-            label.raycastTarget = false;
-
-            go.GetComponent<Button>().onClick.AddListener(() => SwitchTo(captured));
+            var btn = UIBuilder.Button(tabContainer, d.displayName, () => SwitchTo(captured));
+            var le = btn.gameObject.AddComponent<LayoutElement>();
+            le.minWidth = 130; le.minHeight = 36;
         }
     }
 
@@ -153,36 +145,29 @@ public class SkillTreeUI : MonoBehaviour
         rt.SetParent(treeRoot, false);
         rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
         rt.sizeDelta = nodeSize;
-        rt.anchoredPosition = perk.treePosition;
+        rt.anchoredPosition = perk.treePosition * nodeSpacing;
 
-        nodes[perk] = go.GetComponent<Image>();
+        var nodeImg = go.GetComponent<Image>();
+        nodeImg.sprite = UITheme.RoundedSprite();
+        nodeImg.type = Image.Type.Sliced;
+        nodes[perk] = nodeImg;
         spawned.Add(go);
 
-        go.GetComponent<Button>().onClick.AddListener(() =>
-        {
-            progression.TryUnlock(perk);
-            Refresh();
-        });
+        go.GetComponent<Button>().onClick.AddListener(() => { progression.TryUnlock(perk); Refresh(); });
 
-        var label = new GameObject("Label", typeof(RectTransform), typeof(Text));
-        var lrt = (RectTransform)label.transform;
-        lrt.SetParent(rt, false);
+        var txt = UIBuilder.Label(rt, perk.displayName, 16, TextAnchor.MiddleCenter);
+        var lrt = (RectTransform)txt.transform;
         lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
         lrt.offsetMin = Vector2.zero; lrt.offsetMax = Vector2.zero;
-
-        var txt = label.GetComponent<Text>();
-        txt.text = perk.displayName;
-        txt.alignment = TextAnchor.MiddleCenter;
-        txt.color = Color.white;
-        txt.font = font;
         txt.resizeTextForBestFit = true;
-        txt.resizeTextMinSize = 8;
-        txt.resizeTextMaxSize = 18;
+        txt.resizeTextMinSize = 8; txt.resizeTextMaxSize = 18;
         txt.raycastTarget = false;
     }
 
     void CreateLine(Vector2 a, Vector2 b)
     {
+        a *= nodeSpacing; b *= nodeSpacing;
+
         var go = new GameObject("Line", typeof(RectTransform), typeof(Image));
         var rt = (RectTransform)go.transform;
         rt.SetParent(treeRoot, false);
@@ -196,16 +181,7 @@ public class SkillTreeUI : MonoBehaviour
         var img = go.GetComponent<Image>();
         img.color = lineColor;
         img.raycastTarget = false;
-
         spawned.Add(go);
-    }
-
-    Text MakeText(string s, int size, TextAnchor align)
-    {
-        var go = new GameObject("Text", typeof(RectTransform), typeof(Text));
-        var t = go.GetComponent<Text>();
-        t.text = s; t.font = font; t.fontSize = size; t.color = Color.white; t.alignment = align;
-        return t;
     }
 
     void Refresh()

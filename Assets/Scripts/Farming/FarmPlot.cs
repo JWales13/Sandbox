@@ -2,8 +2,17 @@ using UnityEngine;
 
 // A tile you farm. Interact to plant (consumes a seed), wait while it grows
 // (the crop visual scales up), then interact again to harvest produce + XP.
-public class FarmPlot : Interactable
+public class FarmPlot : Interactable, ISaveable
 {
+    // Each plot is its own saveable, keyed by position.
+    public string SaveId => "farmplot_" + SaveKey;
+    public string WriteState() => JsonUtility.ToJson(new FarmPlotSaveData { state = StateIndex, growTimer = GrowTimer });
+    public void ReadState(string data)
+    {
+        var d = JsonUtility.FromJson<FarmPlotSaveData>(data);
+        RestoreState(d.state, d.growTimer);
+    }
+
     public CropDataSO crop;
     [Tooltip("Child object (the plant mesh) that is shown and scaled as it grows.")]
     public Transform cropVisual;

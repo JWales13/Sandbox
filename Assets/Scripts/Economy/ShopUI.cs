@@ -1,18 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-// Self-building shop window. Open(shopkeeper) shows a Buy list (the shop's stock)
-// and a Sell list (your inventory), with a coin balance. Rows are generated in code.
+// Self-building shop window. Only needs a root panel + the player references;
+// it sizes itself and builds the title, coin label, Buy/Sell lists, and Close
+// button in code via UIBuilder. No Inspector container wiring.
 public class ShopUI : MonoBehaviour
 {
     public static ShopUI Instance { get; private set; }
 
-    [Header("Scene references")]
-    public GameObject panel;
-    public RectTransform buyContainer;   // gets a VerticalLayoutGroup
-    public RectTransform sellContainer;  // gets a VerticalLayoutGroup
-    public Text coinsLabel;
-    public Text titleLabel;
+    [Header("References")]
+    public GameObject panel;                 // the root window (can be any size; code sizes it)
 
     [Header("Disabled while open")]
     public PlayerController playerController;
@@ -20,15 +17,14 @@ public class ShopUI : MonoBehaviour
     public PlayerCombat playerCombat;
 
     Shopkeeper current;
-    Font font;
+    Text titleLabel, coinsLabel;
+    RectTransform buyList, sellList;
 
     void Awake() { Instance = this; }
 
     void Start()
     {
-        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        EnsureLayout(buyContainer);
-        EnsureLayout(sellContainer);
+        BuildStatic();
         if (panel != null) panel.SetActive(false);
         if (Wallet.Instance != null) Wallet.Instance.OnChanged += Refresh;
         if (Inventory.Instance != null) Inventory.Instance.OnChanged += Refresh;
@@ -38,6 +34,33 @@ public class ShopUI : MonoBehaviour
     {
         if (Wallet.Instance != null) Wallet.Instance.OnChanged -= Refresh;
         if (Inventory.Instance != null) Inventory.Instance.OnChanged -= Refresh;
+    }
+
+    void BuildStatic()
+    {
+        if (panel == null) return;
+        UIBuilder.SizeWindow(panel, new Vector2(0.15f, 0.12f), new Vector2(0.85f, 0.88f));
+
+        titleLabel = UIBuilder.AnchoredLabel(panel.transform, "Shop", 30, TextAnchor.MiddleCenter,
+            new Vector2(0.5f, 1f), new Vector2(0, -16), new Vector2(500, 40), true);
+        coinsLabel = UIBuilder.AnchoredLabel(panel.transform, "Coins: 0", 18, TextAnchor.MiddleRight,
+            new Vector2(1f, 1f), new Vector2(-24, -18), new Vector2(240, 30));
+
+        UIBuilder.AnchoredLabel(panel.transform, "Buy", 18, TextAnchor.MiddleCenter,
+            new Vector2(0.26f, 0.83f), Vector2.zero, new Vector2(160, 28), true);
+        UIBuilder.AnchoredLabel(panel.transform, "Sell", 18, TextAnchor.MiddleCenter,
+            new Vector2(0.74f, 0.83f), Vector2.zero, new Vector2(160, 28), true);
+
+        buyList = UIBuilder.VerticalList(panel.transform, "BuyList",
+            new Vector2(0.04f, 0.12f), new Vector2(0.48f, 0.80f), Vector4.zero);
+        sellList = UIBuilder.VerticalList(panel.transform, "SellList",
+            new Vector2(0.52f, 0.12f), new Vector2(0.96f, 0.80f), Vector4.zero);
+
+        var close = UIBuilder.Button(panel.transform, "Close", Close);
+        var crt = (RectTransform)close.transform;
+        crt.anchorMin = crt.anchorMax = crt.pivot = new Vector2(0.5f, 0f);
+        crt.anchoredPosition = new Vector2(0, 16);
+        crt.sizeDelta = new Vector2(150, 38);
     }
 
     public void Open(Shopkeeper shop)
@@ -67,22 +90,23 @@ public class ShopUI : MonoBehaviour
         if (coinsLabel != null && Wallet.Instance != null)
             coinsLabel.text = $"Coins: {Wallet.Instance.coins}";
 
-        Clear(buyContainer);
+        UIBuilder.Clear(buyList);
         if (current != null)
             foreach (var item in current.stock)
                 if (item != null)
                 {
                     var captured = item;
-                    MakeRow(buyContainer, $"{item.displayName}   ({item.buyPrice}g)", "Buy", () => Buy(captured));
+                    bool afford = Wallet.Instance != null && Wallet.Instance.CanAfford(item.buyPrice);
+                    UIBuilder.Row(buyList, $"{item.displayName}   ({item.buyPrice}g)", "Buy", afford, () => Buy(captured));
                 }
 
-        Clear(sellContainer);
+        UIBuilder.Clear(sellList);
         if (Inventory.Instance != null)
             foreach (var slot in Inventory.Instance.slots)
                 if (!slot.IsEmpty)
                 {
                     var captured = slot.item;
-                    MakeRow(sellContainer, $"{slot.item.displayName} x{slot.count}   ({slot.item.sellPrice}g)", "Sell", () => Sell(captured));
+                    UIBuilder.Row(sellList, $"{slot.item.displayName} x{slot.count}   ({slot.item.sellPrice}g)", "Sell", true, () => Sell(captured));
                 }
     }
 
@@ -90,9 +114,8 @@ public class ShopUI : MonoBehaviour
     {
         if (Wallet.Instance == null || Inventory.Instance == null) return;
         if (!Wallet.Instance.CanAfford(item.buyPrice)) return;
-
         int leftover = Inventory.Instance.Add(item, 1);
-        if (leftover == 0) Wallet.Instance.Spend(item.buyPrice);   // only charge if it actually fit
+        if (leftover == 0) Wallet.Instance.Spend(item.buyPrice);
     }
 
     void Sell(ItemSO item)
@@ -101,68 +124,9 @@ public class ShopUI : MonoBehaviour
         if (!Inventory.Instance.Remove(item, 1)) return;
 
         int price = item.sellPrice;
-        // SellPrice perks (e.g. Merchant) raise how much you get.
         if (PlayerProgression.Instance != null)
             price = Mathf.RoundToInt(price * (1f + PlayerProgression.Instance.GetStat(StatType.SellPrice)));
         Wallet.Instance.Add(price);
-    }
-
-    // ---------- UI building ----------
-
-    void EnsureLayout(RectTransform c)
-    {
-        if (c == null) return;
-        var v = c.GetComponent<VerticalLayoutGroup>();
-        if (v == null) v = c.gameObject.AddComponent<VerticalLayoutGroup>();
-        v.spacing = 4;
-        v.padding = new RectOffset(6, 6, 6, 6);
-        v.childControlWidth = true; v.childControlHeight = true;
-        v.childForceExpandWidth = true; v.childForceExpandHeight = false;
-    }
-
-    void Clear(RectTransform c)
-    {
-        if (c == null) return;
-        for (int i = c.childCount - 1; i >= 0; i--) Destroy(c.GetChild(i).gameObject);
-    }
-
-    void MakeRow(RectTransform parent, string label, string buttonText, System.Action onClick)
-    {
-        var row = new GameObject("Row", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
-        row.transform.SetParent(parent, false);
-        var hl = row.GetComponent<HorizontalLayoutGroup>();
-        hl.spacing = 8;
-        hl.childControlWidth = true; hl.childControlHeight = true;
-        hl.childForceExpandWidth = false;
-        row.GetComponent<LayoutElement>().minHeight = 34;
-
-        var labelTxt = MakeText(label, 16, TextAnchor.MiddleLeft);
-        labelTxt.transform.SetParent(row.transform, false);
-        var le = labelTxt.gameObject.AddComponent<LayoutElement>();
-        le.minWidth = 240; le.flexibleWidth = 1;
-
-        var btnGO = new GameObject("Button", typeof(RectTransform), typeof(Image), typeof(Button));
-        btnGO.transform.SetParent(row.transform, false);
-        var ble = btnGO.AddComponent<LayoutElement>();
-        ble.minWidth = 72; ble.minHeight = 28;
-        btnGO.GetComponent<Image>().color = new Color(0.25f, 0.5f, 0.9f);
-
-        var bt = MakeText(buttonText, 16, TextAnchor.MiddleCenter);
-        bt.transform.SetParent(btnGO.transform, false);
-        var brt = (RectTransform)bt.transform;
-        brt.anchorMin = Vector2.zero; brt.anchorMax = Vector2.one;
-        brt.offsetMin = Vector2.zero; brt.offsetMax = Vector2.zero;
-        bt.raycastTarget = false;
-
-        btnGO.GetComponent<Button>().onClick.AddListener(() => onClick());
-    }
-
-    Text MakeText(string s, int size, TextAnchor align)
-    {
-        var go = new GameObject("Text", typeof(RectTransform), typeof(Text));
-        var t = go.GetComponent<Text>();
-        t.text = s; t.font = font; t.fontSize = size; t.color = Color.white; t.alignment = align;
-        return t;
     }
 
     void SetControl(bool on)

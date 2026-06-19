@@ -4,8 +4,12 @@ using UnityEngine;
 // Player health. Max HP scales with the Vitality attribute. Recalculates
 // whenever attributes change (e.g. you spend a point). Combat will call
 // TakeDamage/Heal later.
-public class PlayerHealth : MonoBehaviour
+public class PlayerHealth : MonoBehaviour, ISaveable
 {
+    public string SaveId => "playerHealth";
+    public string WriteState() => CurrentHealth.ToString();
+    public void ReadState(string data) { if (int.TryParse(data, out var hp)) SetCurrent(hp); }
+
     public PlayerProgression progression;
     public int baseHealth = 50;
     public int healthPerVitality = 10;

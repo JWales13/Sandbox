@@ -2,9 +2,13 @@ using System;
 using UnityEngine;
 
 // The player's money. Other systems use Wallet.Instance.
-public class Wallet : MonoBehaviour
+public class Wallet : MonoBehaviour, ISaveable
 {
     public static Wallet Instance { get; private set; }
+
+    public string SaveId => "wallet";
+    public string WriteState() => coins.ToString();
+    public void ReadState(string data) { if (int.TryParse(data, out var c)) SetCoins(c); }
 
     public int coins = 50;            // starting coins (tune in inspector)
     public event Action OnChanged;

@@ -12,9 +12,13 @@ public class InventorySlot
 
 // The player's inventory: a fixed set of stacking slots.
 // Other systems use Inventory.Instance.Add(...) / Remove(...) / CountOf(...).
-public class Inventory : MonoBehaviour
+public class Inventory : MonoBehaviour, ISaveable
 {
     public static Inventory Instance { get; private set; }
+
+    public string SaveId => "inventory";
+    public string WriteState() => JsonUtility.ToJson(CaptureData());
+    public void ReadState(string data) => RestoreData(JsonUtility.FromJson<InventorySaveData>(data));
 
     public int slotCount = 24;
     public List<InventorySlot> slots = new List<InventorySlot>();
@@ -94,7 +98,7 @@ public class Inventory : MonoBehaviour
 
     // ---------- Save / load ----------
 
-    public InventorySaveData CaptureState()
+    public InventorySaveData CaptureData()
     {
         var data = new InventorySaveData();
         foreach (var s in slots)
@@ -106,7 +110,7 @@ public class Inventory : MonoBehaviour
         return data;
     }
 
-    public void RestoreState(InventorySaveData data)
+    public void RestoreData(InventorySaveData data)
     {
         if (data == null) return;
 

@@ -6,8 +6,12 @@ using UnityEngine;
 // AddSubskillXP(...) and reads bonuses with GetStat(...) / GetAttribute(...).
 // Perk points are pooled PER DISCIPLINE: points earned from a subskill can only
 // buy perks within that subskill's discipline.
-public class PlayerProgression : MonoBehaviour
+public class PlayerProgression : MonoBehaviour, ISaveable
 {
+    public string SaveId => "progression";
+    public string WriteState() => JsonUtility.ToJson(CaptureData());
+    public void ReadState(string data) => RestoreData(JsonUtility.FromJson<ProgressionSaveData>(data));
+
     [Header("Content (assign all disciplines the player can train)")]
     public List<DisciplineSO> disciplines = new List<DisciplineSO>();
 
@@ -63,7 +67,7 @@ public class PlayerProgression : MonoBehaviour
 
     // ---------- Save / load ----------
 
-    public ProgressionSaveData CaptureState()
+    public ProgressionSaveData CaptureData()
     {
         var data = new ProgressionSaveData
         {
@@ -79,7 +83,7 @@ public class PlayerProgression : MonoBehaviour
         return data;
     }
 
-    public void RestoreState(ProgressionSaveData data)
+    public void RestoreData(ProgressionSaveData data)
     {
         if (data == null) return;
 

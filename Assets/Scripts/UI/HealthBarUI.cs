@@ -44,7 +44,7 @@ public class HealthBarUI : MonoBehaviour
         brt.pivot = new Vector2(0, 1);
         brt.anchoredPosition = position;
         brt.sizeDelta = size;
-        bg.GetComponent<Image>().color = new Color(0, 0, 0, 0.6f);
+        UITheme.StylePanel(bg.GetComponent<Image>());
 
         var fillGO = new GameObject("Fill", typeof(RectTransform), typeof(Image));
         fillRect = (RectTransform)fillGO.transform;
@@ -54,7 +54,10 @@ public class HealthBarUI : MonoBehaviour
         fillRect.pivot = new Vector2(0, 0.5f);
         fillRect.anchoredPosition = new Vector2(3, 0);
         fillRect.sizeDelta = new Vector2(size.x - 6, -6);
-        fillGO.GetComponent<Image>().color = new Color(0.8f, 0.2f, 0.2f);
+        var fillImg = fillGO.GetComponent<Image>();
+        fillImg.sprite = UITheme.RoundedSprite();
+        fillImg.type = Image.Type.Sliced;
+        fillImg.color = new Color(0.90f, 0.20f, 0.38f);   // health pink-red
 
         var labelGO = new GameObject("Label", typeof(RectTransform), typeof(Text));
         var lrt = (RectTransform)labelGO.transform;
@@ -62,9 +65,8 @@ public class HealthBarUI : MonoBehaviour
         lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
         lrt.offsetMin = Vector2.zero; lrt.offsetMax = Vector2.zero;
         label = labelGO.GetComponent<Text>();
-        label.font = font;
         label.alignment = TextAnchor.MiddleCenter;
-        label.color = Color.white;
+        UITheme.StyleText(label, 14);
     }
 
     void Refresh()
