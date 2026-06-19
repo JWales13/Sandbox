@@ -9,7 +9,7 @@ using UnityEngine;
 // ISaveable on the component.
 public class SaveManager : MonoBehaviour
 {
-    string FilePath => Path.Combine(Application.persistentDataPath, "save.json");
+    string FilePath => SaveSlots.PathFor(GameSession.CurrentSlot);
 
     void Start()
     {

@@ -1,14 +1,15 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
-// In-game pause menu. Esc toggles pause: freezes time, frees the cursor, and
-// disables player control. Buttons call Resume / SaveGame / QuitToMenu.
+// In-game pause menu, built in code (themed). Esc pauses (freezes time, frees the
+// cursor, disables control). Buttons: Resume / Save / Quit to Menu.
 public class PauseMenu : MonoBehaviour
 {
     [Header("References")]
-    public GameObject pausePanel;
     public SaveManager saveManager;
     public string mainMenuScene = "MainMenu";
+    public Transform uiRoot;   // Canvas; auto-found if empty
 
     [Header("Disabled while paused")]
     public PlayerController playerController;
@@ -18,9 +19,51 @@ public class PauseMenu : MonoBehaviour
     public KeyCode pauseKey = KeyCode.Escape;
     public bool IsPaused { get; private set; }
 
+    GameObject pausePanel;
+
     void Start()
     {
+        if (uiRoot == null)
+        {
+            var c = FindAnyObjectByType<Canvas>();
+            if (c != null) uiRoot = c.transform;
+        }
+        BuildUI();
         if (pausePanel != null) pausePanel.SetActive(false);
+    }
+
+    void BuildUI()
+    {
+        if (uiRoot == null) return;
+
+        // Full-screen container (no image, so it isn't restyled as a panel).
+        pausePanel = new GameObject("PauseMenu", typeof(RectTransform));
+        var prt = (RectTransform)pausePanel.transform;
+        prt.SetParent(uiRoot, false);
+        prt.anchorMin = Vector2.zero; prt.anchorMax = Vector2.one;
+        prt.offsetMin = Vector2.zero; prt.offsetMax = Vector2.zero;
+
+        // Centered themed window.
+        var window = new GameObject("Window", typeof(RectTransform), typeof(Image));
+        var wrt = (RectTransform)window.transform;
+        wrt.SetParent(prt, false);
+        UIBuilder.SizeWindow(window, new Vector2(0.34f, 0.30f), new Vector2(0.66f, 0.72f));
+
+        UIBuilder.AnchoredLabel(window.transform, "Paused", 44, TextAnchor.MiddleCenter,
+            new Vector2(0.5f, 1f), new Vector2(0, -30), new Vector2(320, 56), true);
+
+        Btn(window.transform, "Resume", 50, Resume);
+        Btn(window.transform, "Save", -20, SaveGame);
+        Btn(window.transform, "Quit to Menu", -90, QuitToMenu);
+    }
+
+    void Btn(Transform parent, string label, float posY, System.Action onClick)
+    {
+        var b = UIBuilder.Button(parent, label, onClick, 24);
+        var rt = (RectTransform)b.transform;
+        rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = new Vector2(0, posY);
+        rt.sizeDelta = new Vector2(260, 56);
     }
 
     void Update()
@@ -29,15 +72,9 @@ public class PauseMenu : MonoBehaviour
 
         if (IsPaused) { Resume(); return; }
 
-        // Esc closes whatever is open first; only pauses if nothing else is.
         if (DialogueUI.Instance != null && DialogueUI.Instance.IsOpen) return;
         if (UIWindow.Current != null) { UIWindow.Current.Close(); return; }
         Pause();
-    }
-
-    public void Toggle()
-    {
-        if (IsPaused) Resume(); else Pause();
     }
 
     void Pause()
@@ -67,7 +104,7 @@ public class PauseMenu : MonoBehaviour
 
     public void QuitToMenu()
     {
-        Time.timeScale = 1f;            // MUST restore, or the menu scene is frozen too
+        Time.timeScale = 1f;
         SceneManager.LoadScene(mainMenuScene);
     }
 
