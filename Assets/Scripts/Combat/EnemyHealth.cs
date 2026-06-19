@@ -2,7 +2,7 @@ using UnityEngine;
 
 // Health for an enemy / training dummy. Flashes white on hit, shows an overhead
 // HP label, and respawns after a delay (or is destroyed if respawnSeconds <= 0).
-public class EnemyHealth : MonoBehaviour
+public class EnemyHealth : MonoBehaviour, IDamageable
 {
     public int maxHealth = 30;
     public float respawnSeconds = 4f;

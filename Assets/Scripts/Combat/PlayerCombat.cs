@@ -69,10 +69,10 @@ public class PlayerCombat : MonoBehaviour
         foreach (var col in Physics.OverlapSphere(center, attackRadius))
         {
             if (col.transform.IsChildOf(transform)) continue;     // ignore self
-            var enemy = col.GetComponentInParent<EnemyHealth>();
-            if (enemy != null)
+            var target = col.GetComponentInParent<IDamageable>();
+            if (target != null && target.IsAlive)
             {
-                enemy.TakeDamage(dmg);
+                target.TakeDamage(dmg);
                 hitSomething = true;
             }
         }
