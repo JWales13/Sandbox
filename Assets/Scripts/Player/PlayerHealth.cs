@@ -12,9 +12,7 @@ public class PlayerHealth : MonoBehaviour, ISaveable, IDamageable
     public string WriteState() => CurrentHealth.ToString();
     public void ReadState(string data) { if (int.TryParse(data, out var hp)) SetCurrent(hp); }
 
-    public PlayerProgression progression;
-    public int baseHealth = 50;
-    public int healthPerVitality = 10;
+    public int baseHealth = 50;   // max HP = baseHealth + Stats MaxHealthBonus
 
     public int MaxHealth { get; private set; }
     public int CurrentHealth { get; private set; }
@@ -28,20 +26,19 @@ public class PlayerHealth : MonoBehaviour, ISaveable, IDamageable
 
     void Start()
     {
-        if (progression == null) progression = PlayerProgression.Instance;
-        if (progression != null) progression.OnChanged += Recalculate;
+        if (Stats.Instance != null) Stats.Instance.OnChanged += Recalculate;
         Recalculate();
     }
 
     void OnDestroy()
     {
-        if (progression != null) progression.OnChanged -= Recalculate;
+        if (Stats.Instance != null) Stats.Instance.OnChanged -= Recalculate;
     }
 
     void Recalculate()
     {
-        int vit = progression != null ? progression.GetAttribute(AttributeType.Vitality) : 0;
-        int newMax = baseHealth + healthPerVitality * vit;
+        int bonus = Stats.Instance != null ? Mathf.RoundToInt(Stats.Instance.Get(StatType.MaxHealthBonus)) : 0;
+        int newMax = baseHealth + bonus;
         int delta = newMax - MaxHealth;
         MaxHealth = newMax;
         // Gaining max HP (from Vitality) heals you by the amount gained.
@@ -53,9 +50,12 @@ public class PlayerHealth : MonoBehaviour, ISaveable, IDamageable
     {
         if (IsDead) return;
 
-        // Defense attribute reduces incoming damage.
-        if (AttributeEffects.Instance != null)
-            amount = Mathf.RoundToInt(amount * (1f - AttributeEffects.Instance.DamageReduction()));
+        // Defense (via the Stats pipeline) reduces incoming damage.
+        if (Stats.Instance != null)
+        {
+            float reduction = Mathf.Clamp(Stats.Instance.Get(StatType.DamageReduction), 0f, 0.95f);
+            amount = Mathf.RoundToInt(amount * (1f - reduction));
+        }
 
         CurrentHealth = Mathf.Clamp(CurrentHealth - Mathf.Max(0, amount), 0, MaxHealth);
         OnHealthChanged?.Invoke();

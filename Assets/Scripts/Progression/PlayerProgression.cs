@@ -6,8 +6,16 @@ using UnityEngine;
 // AddSubskillXP(...) and reads bonuses with GetStat(...) / GetAttribute(...).
 // Perk points are pooled PER DISCIPLINE: points earned from a subskill can only
 // buy perks within that subskill's discipline.
-public class PlayerProgression : MonoBehaviour, ISaveable
+public class PlayerProgression : MonoBehaviour, ISaveable, IStatSource
 {
+    // Unlocked perks contribute their modifiers to the Stats pipeline.
+    public void CollectModifiers(System.Collections.Generic.List<StatModifier> into)
+    {
+        foreach (var p in unlocked)
+            foreach (var m in p.modifiers)
+                into.Add(m);
+    }
+
     public string SaveId => "progression";
     public string WriteState() => JsonUtility.ToJson(CaptureData());
     public void ReadState(string data) => RestoreData(JsonUtility.FromJson<ProgressionSaveData>(data));

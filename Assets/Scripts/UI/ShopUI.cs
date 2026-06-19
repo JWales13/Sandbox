@@ -107,8 +107,8 @@ public class ShopUI : UIWindow
         if (!Inventory.Instance.Remove(item, 1)) return;
 
         int price = item.sellPrice;
-        if (PlayerProgression.Instance != null)
-            price = Mathf.RoundToInt(price * (1f + PlayerProgression.Instance.GetStat(StatType.SellPrice)));
+        if (Stats.Instance != null)
+            price = Mathf.RoundToInt(price * Stats.Instance.Get(StatType.SellPrice));   // SellPrice perks
         Wallet.Instance.Add(price);
     }
 }

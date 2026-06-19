@@ -1,46 +1,52 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-// The single home for turning attribute points into gameplay numbers.
-// Systems query this instead of reading attributes directly, so changing how
-// an attribute works (or adding a new one) is a one-file edit.
-//
-// Soft-cap formula for percentages:  value = max * points / (points + K)
-//   - approaches 'max' but never reaches it
-//   - each additional point matters a little less (diminishing returns)
-public class AttributeEffects : MonoBehaviour
+// Turns attribute points into stat modifiers for the Stats pipeline.
+// Soft caps (diminishing returns) live here; the pipeline just sums contributions.
+public class AttributeEffects : MonoBehaviour, IStatSource
 {
-    public static AttributeEffects Instance { get; private set; }
-
     public PlayerProgression progression;
 
-    [Header("Defense → damage reduction (fraction, soft-capped)")]
-    public float defenseMaxReduction = 0.8f;   // ceiling: 80% of incoming damage
-    public float defenseK = 50f;
+    [Header("Strength → melee damage (flat per point)")]
+    public float strengthPerDamage = 2f;
 
-    [Header("Agility → move-speed bonus (soft-capped)")]
-    public float agilityMaxBonus = 0.4f;       // ceiling: +40% move speed
+    [Header("Vitality → max health (flat per point)")]
+    public float healthPerVitality = 10f;
+
+    [Header("Agility → move-speed bonus (soft-capped fraction)")]
+    public float agilityMaxBonus = 0.4f;
     public float agilityK = 20f;
 
-    void Awake() { Instance = this; }
+    [Header("Defense → damage reduction (soft-capped fraction)")]
+    public float defenseMaxReduction = 0.8f;
+    public float defenseK = 50f;
 
     void Start()
     {
         if (progression == null) progression = PlayerProgression.Instance;
     }
 
-    int Points(AttributeType a) => progression != null ? progression.GetAttribute(a) : 0;
-
-    // Fraction of incoming damage to ignore (0..defenseMaxReduction).
-    public float DamageReduction()
+    public void CollectModifiers(List<StatModifier> into)
     {
-        int def = Points(AttributeType.Defense);
-        return defenseMaxReduction * def / (def + defenseK);
+        var p = progression != null ? progression : PlayerProgression.Instance;
+        if (p == null) return;
+
+        int str = p.GetAttribute(AttributeType.Strength);
+        int vit = p.GetAttribute(AttributeType.Vitality);
+        int agi = p.GetAttribute(AttributeType.Agility);
+        int def = p.GetAttribute(AttributeType.Defense);
+
+        Add(into, StatType.MeleeDamage, str * strengthPerDamage);
+        Add(into, StatType.MaxHealthBonus, vit * healthPerVitality);
+        Add(into, StatType.MoveSpeed, SoftCap(agi, agilityMaxBonus, agilityK));        // added onto base 1
+        Add(into, StatType.DamageReduction, SoftCap(def, defenseMaxReduction, defenseK));
     }
 
-    // Multiplier applied to base move speed (1.0 = no bonus).
-    public float MoveSpeedMultiplier()
+    static void Add(List<StatModifier> into, StatType stat, float value)
     {
-        int agi = Points(AttributeType.Agility);
-        return 1f + agilityMaxBonus * agi / (agi + agilityK);
+        if (value != 0f) into.Add(new StatModifier { stat = stat, value = value, op = StatOp.Flat });
     }
+
+    // value = max * points / (points + K)  — approaches max, diminishing per point.
+    static float SoftCap(int points, float max, float k) => max * points / (points + k);
 }

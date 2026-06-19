@@ -115,9 +115,9 @@ public class FarmPlot : Interactable, ISaveable
             if (Inventory.Instance != null && crop.produceItem != null)
             {
                 int amount = crop.produceAmount;
-                // CropYield perks increase the harvest.
-                if (PlayerProgression.Instance != null)
-                    amount = Mathf.RoundToInt(amount * (1f + PlayerProgression.Instance.GetStat(StatType.CropYield)));
+                // CropYield (perks, via the Stats pipeline) multiplies the harvest.
+                if (Stats.Instance != null)
+                    amount = Mathf.RoundToInt(amount * Stats.Instance.Get(StatType.CropYield));
                 Inventory.Instance.Add(crop.produceItem, Mathf.Max(crop.produceAmount, amount));
             }
         }

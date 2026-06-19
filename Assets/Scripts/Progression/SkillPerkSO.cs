@@ -27,10 +27,4 @@ public class SkillPerkSO : ScriptableObject
     [Tooltip("Named abilities/actions this perk unlocks (queried via HasTag).")]
     public List<string> unlockTags = new List<string>();
 }
-
-[System.Serializable]
-public struct StatModifier
-{
-    public StatType stat;
-    public float value;
-}
+// StatModifier now lives in StatModifier.cs (shared by perks, attributes, equipment).

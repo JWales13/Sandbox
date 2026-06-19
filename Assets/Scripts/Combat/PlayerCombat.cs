@@ -11,8 +11,7 @@ public class PlayerCombat : MonoBehaviour
     public int xpPerHit = 8;
 
     [Header("Damage")]
-    public int baseDamage = 8;
-    public float strengthPerDamage = 2f;  // each Strength point adds this much damage
+    public int baseDamage = 8;   // total = baseDamage + Stats MeleeDamage (Strength + perks)
 
     [Header("Reach")]
     public float attackRange = 2.2f;
@@ -83,8 +82,7 @@ public class PlayerCombat : MonoBehaviour
 
     int ComputeDamage()
     {
-        int strength = progression != null ? progression.GetAttribute(AttributeType.Strength) : 0;
-        float perkBonus = progression != null ? progression.GetStat(StatType.MeleeDamage) : 0f;
-        return Mathf.RoundToInt(baseDamage + strength * strengthPerDamage + perkBonus);
+        float bonus = Stats.Instance != null ? Stats.Instance.Get(StatType.MeleeDamage) : 0f;
+        return Mathf.RoundToInt(baseDamage + bonus);
     }
 }

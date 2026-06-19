@@ -20,5 +20,7 @@ public enum StatType
     CarryCapacity,
     CropYield,
     HarvestSpeed,
-    SellPrice
+    SellPrice,
+    MaxHealthBonus,
+    DamageReduction
 }
