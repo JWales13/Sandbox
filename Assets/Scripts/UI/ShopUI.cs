@@ -1,20 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-// Self-building shop window. Only needs a root panel + the player references;
-// it sizes itself and builds the title, coin label, Buy/Sell lists, and Close
-// button in code via UIBuilder. No Inspector container wiring.
-public class ShopUI : MonoBehaviour
+// Shop window. Open(shop) sets the merchant then opens via UIWindow.
+public class ShopUI : UIWindow
 {
     public static ShopUI Instance { get; private set; }
-
-    [Header("References")]
-    public GameObject panel;                 // the root window (can be any size; code sizes it)
-
-    [Header("Disabled while open")]
-    public PlayerController playerController;
-    public PlayerInteractor playerInteractor;
-    public PlayerCombat playerCombat;
 
     Shopkeeper current;
     Text titleLabel, coinsLabel;
@@ -22,10 +12,9 @@ public class ShopUI : MonoBehaviour
 
     void Awake() { Instance = this; }
 
-    void Start()
+    protected override void Start()
     {
-        BuildStatic();
-        if (panel != null) panel.SetActive(false);
+        base.Start();
         if (Wallet.Instance != null) Wallet.Instance.OnChanged += Refresh;
         if (Inventory.Instance != null) Inventory.Instance.OnChanged += Refresh;
     }
@@ -36,7 +25,21 @@ public class ShopUI : MonoBehaviour
         if (Inventory.Instance != null) Inventory.Instance.OnChanged -= Refresh;
     }
 
-    void BuildStatic()
+    public void Open(Shopkeeper shop)
+    {
+        current = shop;
+        base.Open();
+    }
+
+    protected override void OnOpened()
+    {
+        if (titleLabel != null) titleLabel.text = current != null ? current.shopName : "Shop";
+        Refresh();
+    }
+
+    protected override void OnClosed() => current = null;
+
+    protected override void Build()
     {
         if (panel == null) return;
         UIBuilder.SizeWindow(panel, new Vector2(0.15f, 0.12f), new Vector2(0.85f, 0.88f));
@@ -61,26 +64,6 @@ public class ShopUI : MonoBehaviour
         crt.anchorMin = crt.anchorMax = crt.pivot = new Vector2(0.5f, 0f);
         crt.anchoredPosition = new Vector2(0, 16);
         crt.sizeDelta = new Vector2(150, 38);
-    }
-
-    public void Open(Shopkeeper shop)
-    {
-        current = shop;
-        if (panel != null) panel.SetActive(true);
-        if (titleLabel != null) titleLabel.text = shop != null ? shop.shopName : "Shop";
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-        SetControl(false);
-        Refresh();
-    }
-
-    public void Close()
-    {
-        if (panel != null) panel.SetActive(false);
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        SetControl(true);
-        current = null;
     }
 
     void Refresh()
@@ -127,12 +110,5 @@ public class ShopUI : MonoBehaviour
         if (PlayerProgression.Instance != null)
             price = Mathf.RoundToInt(price * (1f + PlayerProgression.Instance.GetStat(StatType.SellPrice)));
         Wallet.Instance.Add(price);
-    }
-
-    void SetControl(bool on)
-    {
-        if (playerController != null) playerController.enabled = on;
-        if (playerInteractor != null) playerInteractor.enabled = on;
-        if (playerCombat != null) playerCombat.enabled = on;
     }
 }

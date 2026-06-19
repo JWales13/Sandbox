@@ -25,12 +25,14 @@ public class PauseMenu : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(pauseKey))
-        {
-            // Let Esc close an open conversation first instead of pausing.
-            if (!IsPaused && DialogueUI.Instance != null && DialogueUI.Instance.IsOpen) return;
-            Toggle();
-        }
+        if (!Input.GetKeyDown(pauseKey)) return;
+
+        if (IsPaused) { Resume(); return; }
+
+        // Esc closes whatever is open first; only pauses if nothing else is.
+        if (DialogueUI.Instance != null && DialogueUI.Instance.IsOpen) return;
+        if (UIWindow.Current != null) { UIWindow.Current.Close(); return; }
+        Pause();
     }
 
     public void Toggle()

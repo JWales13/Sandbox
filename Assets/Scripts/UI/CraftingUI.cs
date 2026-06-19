@@ -2,19 +2,10 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Self-building crafting window. Needs a root panel + player references; it sizes
-// itself and builds the title, recipe list, and close button via UIBuilder.
-public class CraftingUI : MonoBehaviour
+// Crafting window. Open(station) sets the station then opens via UIWindow.
+public class CraftingUI : UIWindow
 {
     public static CraftingUI Instance { get; private set; }
-
-    [Header("References")]
-    public GameObject panel;
-
-    [Header("Disabled while open")]
-    public PlayerController playerController;
-    public PlayerInteractor playerInteractor;
-    public PlayerCombat playerCombat;
 
     CraftingStation current;
     Text titleLabel;
@@ -22,10 +13,9 @@ public class CraftingUI : MonoBehaviour
 
     void Awake() { Instance = this; }
 
-    void Start()
+    protected override void Start()
     {
-        BuildStatic();
-        if (panel != null) panel.SetActive(false);
+        base.Start();
         if (Inventory.Instance != null) Inventory.Instance.OnChanged += Refresh;
         if (PlayerProgression.Instance != null) PlayerProgression.Instance.OnChanged += Refresh;
     }
@@ -36,7 +26,21 @@ public class CraftingUI : MonoBehaviour
         if (PlayerProgression.Instance != null) PlayerProgression.Instance.OnChanged -= Refresh;
     }
 
-    void BuildStatic()
+    public void Open(CraftingStation station)
+    {
+        current = station;
+        base.Open();
+    }
+
+    protected override void OnOpened()
+    {
+        if (titleLabel != null) titleLabel.text = current != null ? current.stationName : "Crafting";
+        Refresh();
+    }
+
+    protected override void OnClosed() => current = null;
+
+    protected override void Build()
     {
         if (panel == null) return;
         UIBuilder.SizeWindow(panel, new Vector2(0.2f, 0.14f), new Vector2(0.8f, 0.86f));
@@ -52,26 +56,6 @@ public class CraftingUI : MonoBehaviour
         crt.anchorMin = crt.anchorMax = crt.pivot = new Vector2(0.5f, 0f);
         crt.anchoredPosition = new Vector2(0, 16);
         crt.sizeDelta = new Vector2(150, 38);
-    }
-
-    public void Open(CraftingStation station)
-    {
-        current = station;
-        if (panel != null) panel.SetActive(true);
-        if (titleLabel != null) titleLabel.text = station != null ? station.stationName : "Crafting";
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-        SetControl(false);
-        Refresh();
-    }
-
-    public void Close()
-    {
-        if (panel != null) panel.SetActive(false);
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        SetControl(true);
-        current = null;
     }
 
     void Refresh()
@@ -121,12 +105,5 @@ public class CraftingUI : MonoBehaviour
             if (i < r.inputs.Count - 1) sb.Append(", ");
         }
         return sb.ToString();
-    }
-
-    void SetControl(bool on)
-    {
-        if (playerController != null) playerController.enabled = on;
-        if (playerInteractor != null) playerInteractor.enabled = on;
-        if (playerCombat != null) playerCombat.enabled = on;
     }
 }

@@ -3,63 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Self-building attributes screen (toggle with C). Lists every attribute with its
-// value and a + button to spend attribute points. Built via UIBuilder; new enum
-// entries appear automatically.
-public class AttributesUI : MonoBehaviour
+// Attributes window (toggle C). Lists each attribute with a + button to spend
+// points. Built via UIBuilder; open/close handled by UIWindow.
+public class AttributesUI : UIWindow
 {
-    [Header("Data")]
+    [Header("Attributes")]
     public PlayerProgression progression;
-
-    [Header("References")]
-    public GameObject panel;
     public KeyCode toggleKey = KeyCode.C;
-
-    [Header("Disabled while open")]
-    public PlayerController playerController;
-    public PlayerInteractor playerInteractor;
 
     readonly Dictionary<AttributeType, Text> valueTexts = new Dictionary<AttributeType, Text>();
     readonly List<Button> plusButtons = new List<Button>();
     Text pointsLabel;
-    bool built, isOpen;
 
-    void Start()
+    protected override void Start()
     {
         if (progression == null) progression = PlayerProgression.Instance;
+        base.Start();
         if (progression != null) progression.OnChanged += Refresh;
-        if (panel != null) panel.SetActive(false);
     }
 
-    void OnDestroy()
+    void OnDestroy() { if (progression != null) progression.OnChanged -= Refresh; }
+
+    void Update() { if (Input.GetKeyDown(toggleKey)) Toggle(); }
+
+    protected override void OnOpened() => Refresh();
+
+    protected override void Build()
     {
-        if (progression != null) progression.OnChanged -= Refresh;
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(toggleKey)) Toggle();
-    }
-
-    public void Toggle()
-    {
-        isOpen = !isOpen;
-        if (isOpen && !built) Build();
-        if (panel != null) panel.SetActive(isOpen);
-
-        Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = isOpen;
-        if (playerController != null) playerController.enabled = !isOpen;
-        if (playerInteractor != null) playerInteractor.enabled = !isOpen;
-
-        if (isOpen) Refresh();
-    }
-
-    void Build()
-    {
-        built = true;
         if (panel == null) return;
-
         UIBuilder.SizeWindow(panel, new Vector2(0.3f, 0.16f), new Vector2(0.7f, 0.84f));
 
         UIBuilder.AnchoredLabel(panel.transform, "Attributes", 30, TextAnchor.MiddleCenter,
@@ -96,16 +67,6 @@ public class AttributesUI : MonoBehaviour
         var plus = UIBuilder.Button(row.transform, "+", () => { progression.InvestAttribute(captured); Refresh(); }, 22);
         var ble = plus.gameObject.AddComponent<LayoutElement>(); ble.minWidth = 54; ble.minHeight = 36;
         plusButtons.Add(plus);
-    }
-
-    public void Close()
-    {
-        isOpen = false;
-        if (panel != null) panel.SetActive(false);
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        if (playerController != null) playerController.enabled = true;
-        if (playerInteractor != null) playerInteractor.enabled = true;
     }
 
     void Refresh()

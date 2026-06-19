@@ -2,51 +2,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Self-building inventory grid (toggle I). Sizes itself and builds a title, slot
-// grid, and close button via UIBuilder. Clicking an edible item eats it to heal.
-public class InventoryUI : MonoBehaviour
+// Inventory grid window (toggle I). Construction lives in Build(); open/close,
+// cursor, and control are handled by UIWindow. Clicking edible food eats it.
+public class InventoryUI : UIWindow
 {
-    [Header("Data")]
+    [Header("Inventory")]
     public Inventory inventory;
-
-    [Header("References")]
-    public GameObject panel;
     public KeyCode toggleKey = KeyCode.I;
-
-    [Header("Disabled while open")]
-    public PlayerController playerController;
-    public PlayerInteractor playerInteractor;
-
-    [Header("Style")]
     public Vector2 cellSize = new Vector2(96, 96);
 
     RectTransform slotGrid;
     readonly List<GameObject> cells = new List<GameObject>();
-    bool built, isOpen;
 
-    void Start()
+    protected override void Start()
     {
         if (inventory == null) inventory = Inventory.Instance;
-        BuildStatic();
+        base.Start();                                   // builds the UI, hides the panel
         if (inventory != null) inventory.OnChanged += Refresh;
-        if (panel != null) panel.SetActive(false);
     }
 
-    void OnDestroy()
-    {
-        if (inventory != null) inventory.OnChanged -= Refresh;
-    }
+    void OnDestroy() { if (inventory != null) inventory.OnChanged -= Refresh; }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(toggleKey)) Toggle();
-    }
+    void Update() { if (Input.GetKeyDown(toggleKey)) Toggle(); }
 
-    void BuildStatic()
-    {
-        if (panel == null || built) return;
-        built = true;
+    protected override void OnOpened() => Refresh();
 
+    protected override void Build()
+    {
+        if (panel == null) return;
         UIBuilder.SizeWindow(panel, new Vector2(0.22f, 0.16f), new Vector2(0.78f, 0.84f));
 
         UIBuilder.AnchoredLabel(panel.transform, "Inventory", 30, TextAnchor.MiddleCenter,
@@ -55,38 +38,13 @@ public class InventoryUI : MonoBehaviour
         slotGrid = UIBuilder.Area(panel.transform, "SlotGrid",
             new Vector2(0.05f, 0.12f), new Vector2(0.95f, 0.82f), Vector4.zero);
         var grid = slotGrid.gameObject.AddComponent<GridLayoutGroup>();
-        grid.cellSize = cellSize;
-        grid.spacing = new Vector2(8, 8);
-        grid.padding = new RectOffset(10, 10, 10, 10);
+        grid.cellSize = cellSize; grid.spacing = new Vector2(8, 8); grid.padding = new RectOffset(10, 10, 10, 10);
 
         var close = UIBuilder.Button(panel.transform, "Close", Close);
         var crt = (RectTransform)close.transform;
         crt.anchorMin = crt.anchorMax = crt.pivot = new Vector2(0.5f, 0f);
         crt.anchoredPosition = new Vector2(0, 16);
         crt.sizeDelta = new Vector2(150, 38);
-    }
-
-    public void Toggle()
-    {
-        isOpen = !isOpen;
-        if (panel != null) panel.SetActive(isOpen);
-
-        Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = isOpen;
-        if (playerController != null) playerController.enabled = !isOpen;
-        if (playerInteractor != null) playerInteractor.enabled = !isOpen;
-
-        if (isOpen) Refresh();
-    }
-
-    public void Close()
-    {
-        isOpen = false;
-        if (panel != null) panel.SetActive(false);
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        if (playerController != null) playerController.enabled = true;
-        if (playerInteractor != null) playerInteractor.enabled = true;
     }
 
     void Refresh()
@@ -152,8 +110,7 @@ public class InventoryUI : MonoBehaviour
         UITheme.StyleText(txt, 13);
         txt.alignment = TextAnchor.LowerCenter;
         txt.resizeTextForBestFit = true;
-        txt.resizeTextMinSize = 8;
-        txt.resizeTextMaxSize = 14;
+        txt.resizeTextMinSize = 8; txt.resizeTextMaxSize = 14;
         txt.raycastTarget = false;
 
         return cell;

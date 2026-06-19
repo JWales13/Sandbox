@@ -2,23 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Tabbed skill-tree window, built and laid out in code via UIBuilder/UITheme.
-// One tab per discipline; switching rebuilds the node graph for that discipline.
-// Nodes are positioned by each perk's treePosition (× nodeSpacing); prerequisite
-// lines are drawn; clicking an available node spends a point from that discipline.
-public class SkillTreeUI : MonoBehaviour
+// Tabbed skill-tree window (toggle K). Built via UIBuilder/UITheme; open/close
+// handled by UIWindow. One tab per discipline; switching rebuilds the node graph.
+public class SkillTreeUI : UIWindow
 {
-    [Header("Data")]
+    [Header("Skill tree")]
     public List<DisciplineSO> disciplines = new List<DisciplineSO>();
     public PlayerProgression progression;
-
-    [Header("References")]
-    public GameObject rootPanel;
     public KeyCode toggleKey = KeyCode.K;
-
-    [Header("Disabled while open")]
-    public PlayerController playerController;
-    public PlayerInteractor playerInteractor;
 
     [Header("Style")]
     public Vector2 nodeSize = new Vector2(200, 75);
@@ -33,62 +24,46 @@ public class SkillTreeUI : MonoBehaviour
     RectTransform tabContainer, treeRoot;
     Text pointsLabel;
     DisciplineSO active;
-    bool built, isOpen;
 
-    void Start()
+    protected override void Start()
     {
         if (progression == null) progression = PlayerProgression.Instance;
+        base.Start();
         if (progression != null) progression.OnChanged += Refresh;
-        if (rootPanel != null) rootPanel.SetActive(false);
     }
 
-    void OnDestroy()
+    void OnDestroy() { if (progression != null) progression.OnChanged -= Refresh; }
+
+    void Update() { if (Input.GetKeyDown(toggleKey)) Toggle(); }
+
+    protected override void OnOpened()
     {
-        if (progression != null) progression.OnChanged -= Refresh;
+        if (active == null && disciplines.Count > 0) SwitchTo(disciplines[0]);
+        else Refresh();
     }
 
-    void Update()
+    protected override void Build()
     {
-        if (Input.GetKeyDown(toggleKey)) Toggle();
-    }
+        if (panel == null) return;
+        UIBuilder.SizeWindow(panel, new Vector2(0.15f, 0.12f), new Vector2(0.85f, 0.88f));
 
-    public void Toggle()
-    {
-        isOpen = !isOpen;
-
-        if (isOpen)
-        {
-            if (!built) Build();
-            if (active == null && disciplines.Count > 0) SwitchTo(disciplines[0]);
-        }
-
-        if (rootPanel != null) rootPanel.SetActive(isOpen);
-        Cursor.lockState = isOpen ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = isOpen;
-        if (playerController != null) playerController.enabled = !isOpen;
-        if (playerInteractor != null) playerInteractor.enabled = !isOpen;
-
-        if (isOpen) Refresh();
-    }
-
-    void Build()
-    {
-        built = true;
-        if (rootPanel == null) return;
-
-        UIBuilder.SizeWindow(rootPanel, new Vector2(0.15f, 0.12f), new Vector2(0.85f, 0.88f));
-
-        tabContainer = UIBuilder.Area(rootPanel.transform, "TabBar",
-            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector4(12, -64, 12, 12)); // top strip
+        tabContainer = UIBuilder.Area(panel.transform, "TabBar",
+            new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector4(12, -64, 12, 12));
         var h = tabContainer.gameObject.AddComponent<HorizontalLayoutGroup>();
         h.spacing = 6; h.padding = new RectOffset(6, 6, 6, 6);
         h.childControlWidth = true; h.childControlHeight = true; h.childForceExpandWidth = false;
 
-        treeRoot = UIBuilder.Area(rootPanel.transform, "TreeArea",
-            new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector4(12, 50, 12, 74)); // below tabs, above footer
+        treeRoot = UIBuilder.Area(panel.transform, "TreeArea",
+            new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector4(12, 50, 12, 74));
 
-        pointsLabel = UIBuilder.AnchoredLabel(rootPanel.transform, "", 18, TextAnchor.MiddleCenter,
-            new Vector2(0.5f, 0f), new Vector2(0, 14), new Vector2(520, 30), true);
+        pointsLabel = UIBuilder.AnchoredLabel(panel.transform, "", 18, TextAnchor.MiddleCenter,
+            new Vector2(0.5f, 0f), new Vector2(0, 14), new Vector2(360, 30), true);
+
+        var close = UIBuilder.Button(panel.transform, "Close", Close);
+        var crt = (RectTransform)close.transform;
+        crt.anchorMin = crt.anchorMax = crt.pivot = new Vector2(1f, 0f);   // bottom-right
+        crt.anchoredPosition = new Vector2(-16, 10);
+        crt.sizeDelta = new Vector2(120, 36);
 
         foreach (var d in disciplines)
         {
