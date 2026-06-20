@@ -69,19 +69,30 @@ public class CraftingUI : UIWindow
         {
             if (r == null) continue;
             var captured = r;
-            UIBuilder.Row(recipeList, Describe(r), "Craft", CanCraft(r), () => Craft(captured));
+            UIBuilder.Row(recipeList, Describe(r) + Status(r), "Craft", CanCraft(r), () => Craft(captured));
         }
     }
 
-    bool CanCraft(RecipeSO r)
+    bool MeetsLevel(RecipeSO r) =>
+        r.subskill == null || PlayerProgression.Instance == null ||
+        PlayerProgression.Instance.GetSubskillLevel(r.subskill) >= r.requiredSubskillLevel;
+
+    bool HasIngredients(RecipeSO r)
     {
-        if (r == null || Inventory.Instance == null) return false;
-        if (r.subskill != null && PlayerProgression.Instance != null &&
-            PlayerProgression.Instance.GetSubskillLevel(r.subskill) < r.requiredSubskillLevel)
-            return false;
+        if (Inventory.Instance == null) return false;
         foreach (var inp in r.inputs)
             if (inp.item == null || Inventory.Instance.CountOf(inp.item) < inp.amount) return false;
         return true;
+    }
+
+    bool CanCraft(RecipeSO r) => r != null && MeetsLevel(r) && HasIngredients(r);
+
+    // Why a recipe can't be crafted (shown after its description).
+    string Status(RecipeSO r)
+    {
+        if (!MeetsLevel(r)) return $"    (needs {r.subskill.displayName} {r.requiredSubskillLevel})";
+        if (!HasIngredients(r)) return "    (missing materials)";
+        return "";
     }
 
     void Craft(RecipeSO r)
