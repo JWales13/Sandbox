@@ -17,13 +17,31 @@ public class Gatherable : Interactable
     [Tooltip("Seconds until it comes back. 0 or less = removed after one gather.")]
     public float respawnSeconds = 8f;
 
+    [Header("Tool")]
+    [Tooltip("Tool the player must have equipped (None = any).")]
+    public ToolType requiredTool = ToolType.None;
+
     bool depleted;
 
     void Reset() { prompt = "gather"; }
 
+    public override string GetPrompt()
+    {
+        if (requiredTool != ToolType.None && !HasTool())
+            return $"{prompt} (needs {requiredTool})";
+        return prompt;
+    }
+
+    bool HasTool()
+    {
+        if (requiredTool == ToolType.None) return true;
+        return Equipment.Instance != null && Equipment.Instance.CurrentTool == requiredTool;
+    }
+
     public override void Interact(GameObject interactor)
     {
         if (depleted) return;
+        if (!HasTool()) return;   // wrong/no tool equipped
 
         if (PlayerProgression.Instance != null && subskill != null)
             PlayerProgression.Instance.AddSubskillXP(subskill, xpReward);

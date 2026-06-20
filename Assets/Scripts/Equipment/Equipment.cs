@@ -9,16 +9,16 @@ public class Equipment : MonoBehaviour, IStatSource, ISaveable
     public static Equipment Instance { get; private set; }
     public event Action OnChanged;
 
-    readonly Dictionary<EquipSlot, EquipmentSO> equipped = new Dictionary<EquipSlot, EquipmentSO>();
-    readonly Dictionary<string, ItemSO> itemByName = new Dictionary<string, ItemSO>();
+    public ItemDatabaseSO database;   // resolves item assets by name (for save/load)
 
-    void Awake()
-    {
-        Instance = this;
-        foreach (var it in Resources.LoadAll<ItemSO>("")) itemByName[it.name] = it;
-    }
+    readonly Dictionary<EquipSlot, EquipmentSO> equipped = new Dictionary<EquipSlot, EquipmentSO>();
+
+    void Awake() { Instance = this; }
 
     public EquipmentSO Get(EquipSlot slot) => equipped.TryGetValue(slot, out var v) ? v : null;
+
+    public EquipmentSO CurrentWeapon => Get(EquipSlot.Weapon);
+    public ToolType CurrentTool => CurrentWeapon != null ? CurrentWeapon.toolType : ToolType.None;
 
     public void Equip(EquipmentSO item)
     {
@@ -71,9 +71,9 @@ public class Equipment : MonoBehaviour, IStatSource, ISaveable
     {
         equipped.Clear();
         var data = JsonUtility.FromJson<EquipmentSaveData>(json);
-        if (data != null)
+        if (data != null && database != null)
             foreach (var s in data.slots)
-                if (itemByName.TryGetValue(s.itemName, out var it) && it is EquipmentSO eq)
+                if (database.GetByName(s.itemName) is EquipmentSO eq)
                     equipped[(EquipSlot)s.slot] = eq;
         Changed();
     }

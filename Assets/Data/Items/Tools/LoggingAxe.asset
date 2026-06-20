@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 188865bbd898b41ca89f88386c8b82fc, type: 3}
+  m_Name: LoggingAxe
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentSO
+  displayName: Logging Axe
+  description: 
+  icon: {fileID: 0}
+  maxStack: 99
+  sellPrice: 5
+  buyPrice: 10
+  isEdible: 0
+  healthRestore: 0
+  staminaRestore: 0
+  slot: 0
+  toolType: 2
+  modifiers: []
+  worldModel: {fileID: 6869967935285504989, guid: 0ec5098589ea9324086baaaf68745fa7, type: 3}
+  gripPosition: {x: 0, y: 0, z: 0}
+  gripEuler: {x: 0, y: 0, z: 0}
+  gripScale: {x: 1, y: 1, z: 1}

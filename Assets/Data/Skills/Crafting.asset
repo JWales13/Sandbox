@@ -16,3 +16,5 @@ MonoBehaviour:
   description: 
   subskills:
   - {fileID: 11400000, guid: 82e8dae862af24223bc348dc51a116d4, type: 2}
+  - {fileID: 11400000, guid: 1b3210b43314040e495ec10d8e968d10, type: 2}
+  - {fileID: 11400000, guid: acd8232e9510c4eac8b337a51617fa77, type: 2}

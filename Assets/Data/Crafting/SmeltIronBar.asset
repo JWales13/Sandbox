@@ -12,10 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 215b77796906b461f994f56efa4b94ec, type: 3}
   m_Name: SmeltIronBar
   m_EditorClassIdentifier: Assembly-CSharp::RecipeSO
-  displayName: New Recipe
-  inputs: []
-  output: {fileID: 0}
+  displayName: Smelt Iron Bar
+  inputs:
+  - item: {fileID: 11400000, guid: 617689f0461164ca5b93a532dfdaafeb, type: 2}
+    amount: 1
+  output: {fileID: 11400000, guid: 8b4a23d4acc0b41b29b60f0be584d953, type: 2}
   outputAmount: 1
-  subskill: {fileID: 0}
-  xpReward: 20
+  subskill: {fileID: 11400000, guid: 1b3210b43314040e495ec10d8e968d10, type: 2}
+  xpReward: 15
   requiredSubskillLevel: 0

@@ -20,18 +20,14 @@ public class Inventory : MonoBehaviour, ISaveable
     public string WriteState() => JsonUtility.ToJson(CaptureData());
     public void ReadState(string data) => RestoreData(JsonUtility.FromJson<InventorySaveData>(data));
 
+    public ItemDatabaseSO database;   // resolves item assets by name (for save/load)
     public int slotCount = 24;
     public List<InventorySlot> slots = new List<InventorySlot>();
     public event Action OnChanged;
 
-    // Item assets found under any Resources folder, keyed by asset name (for save/load).
-    readonly Dictionary<string, ItemSO> itemByName = new Dictionary<string, ItemSO>();
-
     void Awake()
     {
         Instance = this;
-        foreach (var it in Resources.LoadAll<ItemSO>(""))
-            itemByName[it.name] = it;
         while (slots.Count < slotCount) slots.Add(new InventorySlot());
     }
 
@@ -118,9 +114,10 @@ public class Inventory : MonoBehaviour, ISaveable
 
         for (int i = 0; i < slots.Count; i++)
         {
-            if (i < data.slots.Count
-                && !string.IsNullOrEmpty(data.slots[i].itemName)
-                && itemByName.TryGetValue(data.slots[i].itemName, out var item))
+            ItemSO item = (i < data.slots.Count && database != null)
+                ? database.GetByName(data.slots[i].itemName) : null;
+
+            if (item != null)
             {
                 slots[i].item = item;
                 slots[i].count = data.slots[i].count;

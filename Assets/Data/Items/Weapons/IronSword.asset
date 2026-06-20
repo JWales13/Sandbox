@@ -22,7 +22,12 @@ MonoBehaviour:
   healthRestore: 0
   staminaRestore: 0
   slot: 0
+  toolType: 1
   modifiers:
   - stat: 1
     value: 5
     op: 0
+  worldModel: {fileID: 0}
+  gripPosition: {x: 0, y: 0, z: 0}
+  gripEuler: {x: 0, y: 0, z: 0}
+  gripScale: {x: 1, y: 1, z: 1}
