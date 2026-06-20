@@ -1,0 +1,48 @@
+using UnityEngine;
+
+// A reusable gathering node: mine ore, chop logs, forage, etc. Interacting yields
+// an item, grants a subskill's XP, then the node depletes and respawns (or is
+// destroyed). Generalizes the crop/dispenser pattern — just data, no per-type code.
+public class Gatherable : Interactable
+{
+    [Header("Yield")]
+    public ItemSO item;
+    public int amount = 1;
+
+    [Header("Reward")]
+    public SubskillSO subskill;   // e.g. Mining, Logging, Foraging
+    public int xpReward = 10;
+
+    [Header("Respawn")]
+    [Tooltip("Seconds until it comes back. 0 or less = removed after one gather.")]
+    public float respawnSeconds = 8f;
+
+    bool depleted;
+
+    void Reset() { prompt = "gather"; }
+
+    public override void Interact(GameObject interactor)
+    {
+        if (depleted) return;
+
+        if (PlayerProgression.Instance != null && subskill != null)
+            PlayerProgression.Instance.AddSubskillXP(subskill, xpReward);
+        if (Inventory.Instance != null && item != null)
+            Inventory.Instance.Add(item, amount);
+
+        if (respawnSeconds <= 0f) { Destroy(gameObject); return; }
+
+        SetAvailable(false);
+        Invoke(nameof(Respawn), respawnSeconds);
+    }
+
+    void Respawn() => SetAvailable(true);
+
+    // Toggle renderers + colliders (not the GameObject, so the respawn timer runs).
+    void SetAvailable(bool on)
+    {
+        depleted = !on;
+        foreach (var r in GetComponentsInChildren<Renderer>(true)) r.enabled = on;
+        foreach (var c in GetComponentsInChildren<Collider>(true)) c.enabled = on;
+    }
+}
