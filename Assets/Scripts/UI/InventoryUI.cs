@@ -78,13 +78,23 @@ public class InventoryUI : UIWindow
     {
         if (inventory == null || index < 0 || index >= inventory.slots.Count) return;
         var slot = inventory.slots[index];
-        if (slot.IsEmpty || !slot.item.isEdible) return;
+        if (slot.IsEmpty) return;
 
-        var hp = PlayerHealth.Instance;
-        if (hp == null || hp.CurrentHealth >= hp.MaxHealth) return;   // don't waste food at full
+        // Equipment → equip it.
+        if (slot.item is EquipmentSO eq)
+        {
+            if (Equipment.Instance != null) Equipment.Instance.Equip(eq);
+            return;
+        }
 
-        hp.Heal(slot.item.healthRestore);
-        inventory.Remove(slot.item, 1);
+        // Edible → eat to heal (not at full health).
+        if (slot.item.isEdible)
+        {
+            var hp = PlayerHealth.Instance;
+            if (hp == null || hp.CurrentHealth >= hp.MaxHealth) return;
+            hp.Heal(slot.item.healthRestore);
+            inventory.Remove(slot.item, 1);
+        }
     }
 
     GameObject CreateCell(int index)

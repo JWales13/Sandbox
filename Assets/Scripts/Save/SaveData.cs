@@ -59,6 +59,19 @@ public class TransformState
 }
 
 [System.Serializable]
+public class EquipmentSaveData
+{
+    public List<SlotItem> slots = new List<SlotItem>();
+}
+
+[System.Serializable]
+public class SlotItem
+{
+    public int slot;
+    public string itemName;
+}
+
+[System.Serializable]
 public class IntEntry { public int key; public int value; }
 
 [System.Serializable]
