@@ -32,8 +32,7 @@ Transform:
   m_LocalPosition: {x: 4.32, y: 0, z: -3.97}
   m_LocalScale: {x: 1, y: 0.1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 5861065174644385821}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &111647305327018472
@@ -128,83 +127,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FarmPlot
   prompt: interact
   crop: {fileID: 11400000, guid: 31f061b7c83de422183f10b9e6eda321, type: 2}
-  cropVisual: {fileID: 5861065174644385821}
---- !u!1001 &7780806503127293499
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 8159565625748918620}
-    m_Modifications:
-    - target: {fileID: -2982951110605654832, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1941980279283757603, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_Name
-      value: CropVisual
-      objectReference: {fileID: 0}
-    - target: {fileID: 4227848653850867238, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.98232
-      objectReference: {fileID: 0}
-    - target: {fileID: 4227848653850867238, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 9.8232
-      objectReference: {fileID: 0}
-    - target: {fileID: 4227848653850867238, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.98232
-      objectReference: {fileID: 0}
-    - target: {fileID: 4227848653850867238, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.27
-      objectReference: {fileID: 0}
-    - target: {fileID: 4227848653850867238, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.14658
-      objectReference: {fileID: 0}
-    - target: {fileID: 4227848653850867238, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.22
-      objectReference: {fileID: 0}
-    - target: {fileID: 4227848653850867238, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4227848653850867238, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4227848653850867238, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4227848653850867238, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4227848653850867238, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4227848653850867238, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4227848653850867238, guid: 1ff530657f12e2944895de229213090e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: -2982951110605654832, guid: 1ff530657f12e2944895de229213090e, type: 3}
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 1ff530657f12e2944895de229213090e, type: 3}
---- !u!4 &5861065174644385821 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4227848653850867238, guid: 1ff530657f12e2944895de229213090e, type: 3}
-  m_PrefabInstance: {fileID: 7780806503127293499}
-  m_PrefabAsset: {fileID: 0}
+  cropVisual: {fileID: 6662174415517613310, guid: 81dad7d5552c9a341b390c79338fe0a4, type: 3}

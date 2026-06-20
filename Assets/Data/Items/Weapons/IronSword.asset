@@ -27,7 +27,7 @@ MonoBehaviour:
   - stat: 1
     value: 5
     op: 0
-  worldModel: {fileID: 0}
+  worldModel: {fileID: 919132149155446097, guid: 9026631880981124986efd2a20e96a1d, type: 3}
   gripPosition: {x: 0, y: 0, z: 0}
   gripEuler: {x: 0, y: 0, z: 0}
   gripScale: {x: 1, y: 1, z: 1}
