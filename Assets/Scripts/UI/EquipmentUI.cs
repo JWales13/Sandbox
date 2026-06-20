@@ -7,7 +7,7 @@ using UnityEngine.UI;
 // Unequip button. Built via UIBuilder; open/close handled by UIWindow.
 public class EquipmentUI : UIWindow
 {
-    public KeyCode toggleKey = KeyCode.G;
+    [SerializeField] KeyCode toggleKey = KeyCode.G;
 
     EquipSlot[] slots;
     readonly List<Text> rowLabels = new List<Text>();

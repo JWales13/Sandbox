@@ -9,7 +9,7 @@ public class Equipment : MonoBehaviour, IStatSource, ISaveable
     public static Equipment Instance { get; private set; }
     public event Action OnChanged;
 
-    public ItemDatabaseSO database;   // resolves item assets by name (for save/load)
+    [SerializeField] ItemDatabaseSO database;   // resolves item assets by name (for save/load)
 
     readonly Dictionary<EquipSlot, EquipmentSO> equipped = new Dictionary<EquipSlot, EquipmentSO>();
 

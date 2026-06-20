@@ -8,8 +8,8 @@ using UnityEngine.UI;
 public class AttributesUI : UIWindow
 {
     [Header("Attributes")]
-    public PlayerProgression progression;
-    public KeyCode toggleKey = KeyCode.C;
+    [SerializeField] PlayerProgression progression;
+    [SerializeField] KeyCode toggleKey = KeyCode.C;
 
     readonly Dictionary<AttributeType, Text> valueTexts = new Dictionary<AttributeType, Text>();
     readonly List<Button> plusButtons = new List<Button>();

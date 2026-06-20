@@ -12,10 +12,10 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public class UIThemeApplier : MonoBehaviour
 {
-    public bool styleButtons = true;
-    public bool stylePanels = true;
-    public bool styleTexts = true;
-    public GameObject[] ignore;
+    [SerializeField] bool styleButtons = true;
+    [SerializeField] bool stylePanels = true;
+    [SerializeField] bool styleTexts = true;
+    [SerializeField] GameObject[] ignore;
 
     void Start() { Apply(); }
 

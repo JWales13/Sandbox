@@ -7,9 +7,9 @@ using UnityEngine.UI;
 public class InventoryUI : UIWindow
 {
     [Header("Inventory")]
-    public Inventory inventory;
-    public KeyCode toggleKey = KeyCode.I;
-    public Vector2 cellSize = new Vector2(96, 96);
+    [SerializeField] Inventory inventory;
+    [SerializeField] KeyCode toggleKey = KeyCode.I;
+    [SerializeField] Vector2 cellSize = new Vector2(96, 96);
 
     RectTransform slotGrid;
     readonly List<GameObject> cells = new List<GameObject>();

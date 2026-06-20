@@ -34,7 +34,7 @@ public class CraftingUI : UIWindow
 
     protected override void OnOpened()
     {
-        if (titleLabel != null) titleLabel.text = current != null ? current.stationName : "Crafting";
+        if (titleLabel != null) titleLabel.text = current != null ? current.StationName : "Crafting";
         Refresh();
     }
 
@@ -65,7 +65,7 @@ public class CraftingUI : UIWindow
         UIBuilder.Clear(recipeList);
         if (current == null) return;
 
-        foreach (var r in current.recipes)
+        foreach (var r in current.Recipes)
         {
             if (r == null) continue;
             var captured = r;

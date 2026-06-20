@@ -10,7 +10,8 @@ public class Wallet : MonoBehaviour, ISaveable
     public string WriteState() => coins.ToString();
     public void ReadState(string data) { if (int.TryParse(data, out var c)) SetCoins(c); }
 
-    public int coins = 50;            // starting coins (tune in inspector)
+    [SerializeField] int coins = 50;  // starting coins (tune in inspector)
+    public int Coins => coins;        // read-only to the rest of the game; use Add/Spend to change
     public event Action OnChanged;
 
     void Awake() { Instance = this; }

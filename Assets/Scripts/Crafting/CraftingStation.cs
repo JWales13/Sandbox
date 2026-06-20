@@ -5,8 +5,11 @@ using UnityEngine;
 // crafting menu showing the recipes this station can make.
 public class CraftingStation : Interactable
 {
-    public string stationName = "Workbench";
-    public List<RecipeSO> recipes = new List<RecipeSO>();
+    [SerializeField] string stationName = "Workbench";
+    [SerializeField] List<RecipeSO> recipes = new List<RecipeSO>();
+
+    public string StationName => stationName;
+    public IReadOnlyList<RecipeSO> Recipes => recipes;
 
     void Reset() { prompt = "craft"; }
 

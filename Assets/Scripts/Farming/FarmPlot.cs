@@ -13,9 +13,9 @@ public class FarmPlot : Interactable, ISaveable
         RestoreState(d.state, d.growTimer);
     }
 
-    public CropDataSO crop;
+    [SerializeField] CropDataSO crop;
     [Tooltip("Child object (the plant mesh) that is shown and scaled as it grows.")]
-    public Transform cropVisual;
+    [SerializeField] Transform cropVisual;
 
     enum State { Empty, Growing, Ready }
     State state = State.Empty;

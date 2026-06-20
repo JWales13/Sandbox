@@ -21,14 +21,15 @@ public class PlayerProgression : MonoBehaviour, ISaveable, IStatSource
     public void ReadState(string data) => RestoreData(JsonUtility.FromJson<ProgressionSaveData>(data));
 
     [Header("Content (assign all disciplines the player can train)")]
-    public List<DisciplineSO> disciplines = new List<DisciplineSO>();
+    [SerializeField] List<DisciplineSO> disciplines = new List<DisciplineSO>();
+    public IReadOnlyList<DisciplineSO> Disciplines => disciplines;
 
     [Header("Character level (1-100)")]
-    public int maxCharacterLevel = 100;
-    public float characterBaseXP = 200f;
-    public float characterExponent = 1.4f;
+    [SerializeField] int maxCharacterLevel = 100;
+    [SerializeField] float characterBaseXP = 200f;
+    [SerializeField] float characterExponent = 1.4f;
     [Tooltip("Character XP per subskill level-up = this * the new subskill level.")]
-    public float charXpPerSubskillLevel = 10f;
+    [SerializeField] float charXpPerSubskillLevel = 10f;
 
     // --- Live state (not Inspector-serialized; handled by the save system later) ---
     public int AttributePoints { get; private set; }

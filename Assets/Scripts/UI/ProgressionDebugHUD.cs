@@ -33,7 +33,7 @@ public class ProgressionDebugHUD : MonoBehaviour
         GUILayout.Label($"Character Level: {progression.CharacterLevel}/100    " +
                         $"XP: {progression.CharacterXpIntoLevel}/{progression.CharacterXpForNext()}", style);
         GUILayout.Label($"Attribute Points: {progression.AttributePoints}", style);
-        foreach (var d in progression.disciplines)
+        foreach (var d in progression.Disciplines)
             if (d != null)
                 GUILayout.Label($"  {d.displayName} perk points: {progression.GetPerkPoints(d)}", style);
         GUILayout.Label($"STR {progression.GetAttribute(AttributeType.Strength)}   " +

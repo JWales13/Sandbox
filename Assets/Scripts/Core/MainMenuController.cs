@@ -7,9 +7,9 @@ using UnityEngine.UI;
 public class MainMenuController : MonoBehaviour
 {
     [Tooltip("Exact name of the gameplay scene (must be in Build Settings).")]
-    public string gameSceneName = "GameWorld";
-    public string gameTitle = "Isekai Sandbox RPG";
-    public Transform uiRoot;   // a Canvas; auto-found if empty
+    [SerializeField] string gameSceneName = "GameWorld";
+    [SerializeField] string gameTitle = "Isekai Sandbox RPG";
+    [SerializeField] Transform uiRoot;   // a Canvas; auto-found if empty
 
     GameObject mainPanel, slotPanel;
     bool slotNewGameMode;

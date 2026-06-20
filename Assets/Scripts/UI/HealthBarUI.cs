@@ -5,10 +5,10 @@ using UnityEngine.UI;
 // fill rect to current/max and shows the numbers.
 public class HealthBarUI : MonoBehaviour
 {
-    public PlayerHealth health;
-    public RectTransform parent;                       // a Canvas to attach to (auto-found if empty)
-    public Vector2 size = new Vector2(260, 26);
-    public Vector2 position = new Vector2(20, -20);    // offset from top-left
+    [SerializeField] PlayerHealth health;
+    [SerializeField] RectTransform parent;                       // a Canvas to attach to (auto-found if empty)
+    [SerializeField] Vector2 size = new Vector2(260, 26);
+    [SerializeField] Vector2 position = new Vector2(20, -20);    // offset from top-left
 
     RectTransform fillRect;
     Text label;

@@ -33,7 +33,7 @@ public class ShopUI : UIWindow
 
     protected override void OnOpened()
     {
-        if (titleLabel != null) titleLabel.text = current != null ? current.shopName : "Shop";
+        if (titleLabel != null) titleLabel.text = current != null ? current.ShopName : "Shop";
         Refresh();
     }
 
@@ -71,11 +71,11 @@ public class ShopUI : UIWindow
         if (panel == null || !panel.activeSelf) return;
 
         if (coinsLabel != null && Wallet.Instance != null)
-            coinsLabel.text = $"Coins: {Wallet.Instance.coins}";
+            coinsLabel.text = $"Coins: {Wallet.Instance.Coins}";
 
         UIBuilder.Clear(buyList);
         if (current != null)
-            foreach (var item in current.stock)
+            foreach (var item in current.Stock)
                 if (item != null)
                 {
                     var captured = item;

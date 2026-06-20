@@ -5,8 +5,11 @@ using UnityEngine;
 // it sells (data assets you assign).
 public class Shopkeeper : Interactable
 {
-    public string shopName = "Merchant";
-    public List<ItemSO> stock = new List<ItemSO>();
+    [SerializeField] string shopName = "Merchant";
+    [SerializeField] List<ItemSO> stock = new List<ItemSO>();
+
+    public string ShopName => shopName;
+    public IReadOnlyList<ItemSO> Stock => stock;
 
     void Reset() { prompt = "shop"; }
 

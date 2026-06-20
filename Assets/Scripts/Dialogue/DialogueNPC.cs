@@ -5,10 +5,10 @@ using UnityEngine;
 // you'll branch dialogue, give quests, open the guild board, etc.
 public class DialogueNPC : Interactable
 {
-    public string npcName = "Villager";
+    [SerializeField] string npcName = "Villager";
 
     [TextArea(2, 4)]
-    public string[] lines;
+    [SerializeField] string[] lines;
 
     // Sets a sensible default prompt when you first add the component.
     void Reset() { prompt = "talk"; }

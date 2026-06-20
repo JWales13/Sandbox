@@ -4,8 +4,8 @@ using UnityEngine;
 // A simple reusable Interactable.
 public class ItemDispenser : Interactable
 {
-    public ItemSO item;
-    public int amount = 5;
+    [SerializeField] ItemSO item;
+    [SerializeField] int amount = 5;
 
     void Reset() { prompt = "take"; }
 

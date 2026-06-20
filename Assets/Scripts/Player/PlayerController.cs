@@ -9,28 +9,28 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
-    public float walkSpeed = 4f;
-    public float runSpeed = 7f;
-    public float gravity = -20f;
-    public float jumpHeight = 1.2f;
-    public float turnSpeed = 720f;       // how fast the model turns toward movement (deg/sec)
+    [SerializeField] float walkSpeed = 4f;
+    [SerializeField] float runSpeed = 7f;
+    [SerializeField] float gravity = -20f;
+    [SerializeField] float jumpHeight = 1.2f;
+    [SerializeField] float turnSpeed = 720f;       // how fast the model turns toward movement (deg/sec)
 
     [Header("Look")]
-    public float mouseSensitivity = 2f;
-    public float minPitch = -70f;
-    public float maxPitch = 80f;
+    [SerializeField] float mouseSensitivity = 2f;
+    [SerializeField] float minPitch = -70f;
+    [SerializeField] float maxPitch = 80f;
 
     [Header("Camera")]
-    public Transform cameraPivot;        // child at head height; this is what rotates
-    public Transform playerCamera;       // Main Camera, child of cameraPivot
-    public Vector3 firstPersonOffset = new Vector3(0f, 0f, 0.1f);
-    public Vector3 thirdPersonOffset = new Vector3(0f, 0.4f, -3.5f);
-    public KeyCode toggleViewKey = KeyCode.V;
+    [SerializeField] Transform cameraPivot;        // child at head height; this is what rotates
+    [SerializeField] Transform playerCamera;       // Main Camera, child of cameraPivot
+    [SerializeField] Vector3 firstPersonOffset = new Vector3(0f, 0f, 0.1f);
+    [SerializeField] Vector3 thirdPersonOffset = new Vector3(0f, 0.4f, -3.5f);
+    [SerializeField] KeyCode toggleViewKey = KeyCode.V;
 
     [Header("Character")]
-    public Animator animator;
-    public GameObject characterModel;    // rotated to face movement; hidden in first person
-    public float animationDamp = 0.1f;
+    [SerializeField] Animator animator;
+    [SerializeField] GameObject characterModel;    // rotated to face movement; hidden in first person
+    [SerializeField] float animationDamp = 0.1f;
 
     CharacterController controller;
     float yaw, pitch;

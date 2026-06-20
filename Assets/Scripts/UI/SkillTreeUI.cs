@@ -7,17 +7,17 @@ using UnityEngine.UI;
 public class SkillTreeUI : UIWindow
 {
     [Header("Skill tree")]
-    public List<DisciplineSO> disciplines = new List<DisciplineSO>();
-    public PlayerProgression progression;
-    public KeyCode toggleKey = KeyCode.K;
+    [SerializeField] List<DisciplineSO> disciplines = new List<DisciplineSO>();
+    [SerializeField] PlayerProgression progression;
+    [SerializeField] KeyCode toggleKey = KeyCode.K;
 
     [Header("Style")]
-    public Vector2 nodeSize = new Vector2(200, 75);
-    public float nodeSpacing = 1.5f;
-    public Color unlockedColor = new Color(0.20f, 0.70f, 0.30f);
-    public Color availableColor = new Color(0.85f, 0.75f, 0.20f);
-    public Color lockedColor = new Color(0.30f, 0.30f, 0.30f);
-    public Color lineColor = new Color(1f, 1f, 1f, 0.4f);
+    [SerializeField] Vector2 nodeSize = new Vector2(200, 75);
+    [SerializeField] float nodeSpacing = 1.5f;
+    [SerializeField] Color unlockedColor = new Color(0.20f, 0.70f, 0.30f);
+    [SerializeField] Color availableColor = new Color(0.85f, 0.75f, 0.20f);
+    [SerializeField] Color lockedColor = new Color(0.30f, 0.30f, 0.30f);
+    [SerializeField] Color lineColor = new Color(1f, 1f, 1f, 0.4f);
 
     readonly Dictionary<SkillPerkSO, Image> nodes = new Dictionary<SkillPerkSO, Image>();
     readonly List<GameObject> spawned = new List<GameObject>();

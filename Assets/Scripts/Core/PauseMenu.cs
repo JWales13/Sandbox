@@ -7,16 +7,16 @@ using UnityEngine.UI;
 public class PauseMenu : MonoBehaviour
 {
     [Header("References")]
-    public SaveManager saveManager;
-    public string mainMenuScene = "MainMenu";
-    public Transform uiRoot;   // Canvas; auto-found if empty
+    [SerializeField] SaveManager saveManager;
+    [SerializeField] string mainMenuScene = "MainMenu";
+    [SerializeField] Transform uiRoot;   // Canvas; auto-found if empty
 
     [Header("Disabled while paused")]
-    public PlayerController playerController;
-    public PlayerInteractor playerInteractor;
-    public PlayerCombat playerCombat;
+    [SerializeField] PlayerController playerController;
+    [SerializeField] PlayerInteractor playerInteractor;
+    [SerializeField] PlayerCombat playerCombat;
 
-    public KeyCode pauseKey = KeyCode.Escape;
+    [SerializeField] KeyCode pauseKey = KeyCode.Escape;
     public bool IsPaused { get; private set; }
 
     GameObject pausePanel;

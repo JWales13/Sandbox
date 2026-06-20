@@ -6,20 +6,20 @@ using UnityEngine;
 public class Gatherable : Interactable
 {
     [Header("Yield")]
-    public ItemSO item;
-    public int amount = 1;
+    [SerializeField] ItemSO item;
+    [SerializeField] int amount = 1;
 
     [Header("Reward")]
-    public SubskillSO subskill;   // e.g. Mining, Logging, Foraging
-    public int xpReward = 10;
+    [SerializeField] SubskillSO subskill;   // e.g. Mining, Logging, Foraging
+    [SerializeField] int xpReward = 10;
 
     [Header("Respawn")]
     [Tooltip("Seconds until it comes back. 0 or less = removed after one gather.")]
-    public float respawnSeconds = 8f;
+    [SerializeField] float respawnSeconds = 8f;
 
     [Header("Tool")]
     [Tooltip("Tool the player must have equipped (None = any).")]
-    public ToolType requiredTool = ToolType.None;
+    [SerializeField] ToolType requiredTool = ToolType.None;
 
     bool depleted;
 

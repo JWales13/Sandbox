@@ -6,16 +6,16 @@ using UnityEngine;
 public class HarvestableCrop : Interactable
 {
     [Header("Reward")]
-    public SubskillSO subskill;     // e.g. Cultivation
-    public int xpReward = 40;
+    [SerializeField] SubskillSO subskill;     // e.g. Cultivation
+    [SerializeField] int xpReward = 40;
 
     [Header("Yield")]
-    public ItemSO yieldItem;        // what the player receives (e.g. Wheat)
-    public int yieldAmount = 1;
+    [SerializeField] ItemSO yieldItem;        // what the player receives (e.g. Wheat)
+    [SerializeField] int yieldAmount = 1;
 
     [Header("Regrow")]
     [Tooltip("Seconds until the crop regrows. 0 or less = harvested once, then destroyed.")]
-    public float regrowSeconds = 5f;
+    [SerializeField] float regrowSeconds = 5f;
 
     void Reset() { prompt = "harvest"; }
 

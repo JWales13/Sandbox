@@ -6,27 +6,27 @@ using UnityEngine;
 public class PlayerCombat : MonoBehaviour
 {
     [Header("Progression")]
-    public PlayerProgression progression;
-    public SubskillSO combatSubskill;     // e.g. Combat
-    public int xpPerHit = 8;
+    [SerializeField] PlayerProgression progression;
+    [SerializeField] SubskillSO combatSubskill;     // e.g. Combat
+    [SerializeField] int xpPerHit = 8;
 
     [Header("Damage")]
-    public int baseDamage = 8;   // total = baseDamage + Stats MeleeDamage (Strength + perks)
+    [SerializeField] int baseDamage = 8;   // total = baseDamage + Stats MeleeDamage (Strength + perks)
 
     [Header("Reach")]
-    public float attackRange = 2.2f;
-    public float attackRadius = 1.2f;
-    public float attackCooldown = 0.6f;
-    public KeyCode attackKey = KeyCode.Mouse0;
+    [SerializeField] float attackRange = 2.2f;
+    [SerializeField] float attackRadius = 1.2f;
+    [SerializeField] float attackCooldown = 0.6f;
+    [SerializeField] KeyCode attackKey = KeyCode.Mouse0;
 
     [Header("Animation")]
-    public Animator animator;                 // the character model's Animator
-    public string attackTrigger = "Attack";
+    [SerializeField] Animator animator;                 // the character model's Animator
+    [SerializeField] string attackTrigger = "Attack";
     [Tooltip("Delay before the hit registers, so damage lands mid-swing.")]
-    public float hitDelay = 0.25f;
+    [SerializeField] float hitDelay = 0.25f;
 
     [Header("Facing")]
-    public PlayerController playerController;  // used for the attack direction
+    [SerializeField] PlayerController playerController;  // used for the attack direction
 
     float nextAttackTime;
 

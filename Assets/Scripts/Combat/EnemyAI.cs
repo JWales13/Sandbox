@@ -6,22 +6,22 @@ using UnityEngine;
 public class EnemyAI : MonoBehaviour
 {
     [Header("Senses")]
-    public float sightRange = 12f;
-    public float attackRange = 2f;
+    [SerializeField] float sightRange = 12f;
+    [SerializeField] float attackRange = 2f;
 
     [Header("Movement")]
-    public float moveSpeed = 2.5f;
-    public float turnSpeed = 8f;
+    [SerializeField] float moveSpeed = 2.5f;
+    [SerializeField] float turnSpeed = 8f;
     [Tooltip("Half the capsule's height, so it sits on the ground.")]
-    public float groundOffset = 1f;
+    [SerializeField] float groundOffset = 1f;
 
     [Header("Attack")]
-    public int attackDamage = 5;
-    public float attackCooldown = 1.5f;
+    [SerializeField] int attackDamage = 5;
+    [SerializeField] float attackCooldown = 1.5f;
 
     [Header("Wander")]
-    public float wanderRadius = 6f;
-    public float wanderInterval = 4f;
+    [SerializeField] float wanderRadius = 6f;
+    [SerializeField] float wanderInterval = 4f;
 
     Transform player;
     PlayerHealth playerHealth;

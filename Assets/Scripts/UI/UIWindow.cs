@@ -7,10 +7,10 @@ using UnityEngine;
 public abstract class UIWindow : MonoBehaviour
 {
     [Header("Window")]
-    public GameObject panel;
-    public PlayerController playerController;
-    public PlayerInteractor playerInteractor;
-    public PlayerCombat playerCombat;
+    [SerializeField] protected GameObject panel;   // protected: subclasses build into it
+    [SerializeField] PlayerController playerController;
+    [SerializeField] PlayerInteractor playerInteractor;
+    [SerializeField] PlayerCombat playerCombat;
 
     public static UIWindow Current { get; private set; }   // the currently open window, if any
     public bool IsOpen { get; private set; }

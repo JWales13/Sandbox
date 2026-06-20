@@ -12,7 +12,7 @@ public class PlayerHealth : MonoBehaviour, ISaveable, IDamageable
     public string WriteState() => CurrentHealth.ToString();
     public void ReadState(string data) { if (int.TryParse(data, out var hp)) SetCurrent(hp); }
 
-    public int baseHealth = 50;   // max HP = baseHealth + Stats MaxHealthBonus
+    [SerializeField] int baseHealth = 50;   // max HP = baseHealth + Stats MaxHealthBonus
 
     public int MaxHealth { get; private set; }
     public int CurrentHealth { get; private set; }
