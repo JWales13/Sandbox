@@ -20,7 +20,7 @@ public class Stats : MonoBehaviour
     void Start()
     {
         sources.Clear();
-        sources.AddRange(FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IStatSource>());
+        sources.AddRange(FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Exclude).OfType<IStatSource>());
 
         // Recompute whenever progression (attributes/perks) changes.
         if (PlayerProgression.Instance != null) PlayerProgression.Instance.OnChanged += Recalculate;

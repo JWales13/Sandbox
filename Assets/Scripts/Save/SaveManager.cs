@@ -28,7 +28,7 @@ public class SaveManager : MonoBehaviour
 
     static IEnumerable<ISaveable> FindSaveables()
     {
-        return FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ISaveable>();
+        return FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Exclude).OfType<ISaveable>();
     }
 
     public void Save()
