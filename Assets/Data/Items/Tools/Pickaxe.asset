@@ -12,19 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 188865bbd898b41ca89f88386c8b82fc, type: 3}
   m_Name: Pickaxe
   m_EditorClassIdentifier: Assembly-CSharp::EquipmentSO
-  displayName: New Item
+  displayName: Pickaxe
   description: 
   icon: {fileID: 0}
   maxStack: 99
-  sellPrice: 1
-  buyPrice: 2
+  sellPrice: 5
+  buyPrice: 10
   isEdible: 0
   healthRestore: 0
   staminaRestore: 0
   slot: 0
-  toolType: 0
+  toolType: 3
   modifiers: []
-  worldModel: {fileID: 0}
+  worldModel: {fileID: 2685388230905567624, guid: a8d8f6cb6318ce844af4133a82e658e8, type: 3}
   gripPosition: {x: 0, y: 0, z: 0}
   gripEuler: {x: 0, y: 0, z: 0}
   gripScale: {x: 1, y: 1, z: 1}

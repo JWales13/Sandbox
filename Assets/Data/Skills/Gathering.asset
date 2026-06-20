@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 960ccdf12cb764a97bd06a18cc83a12f, type: 3}
   m_Name: Gathering
   m_EditorClassIdentifier: Assembly-CSharp::DisciplineSO
-  displayName: New Discipline
+  displayName: Gathering
   description: 
-  subskills: []
+  subskills:
+  - {fileID: 11400000, guid: bc5cf5f66f8714dbeaa4488cc33d122c, type: 2}
+  - {fileID: 11400000, guid: acd8232e9510c4eac8b337a51617fa77, type: 2}

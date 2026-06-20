@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1ed16e8631154ad4bb44dc8d544aa6c, type: 3}
   m_Name: Lumber
   m_EditorClassIdentifier: Assembly-CSharp::ItemSO
-  displayName: New Item
+  displayName: Lumber
   description: 
   icon: {fileID: 0}
   maxStack: 99
