@@ -16,7 +16,6 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] PlayerInteractor playerInteractor;
     [SerializeField] PlayerCombat playerCombat;
 
-    [SerializeField] KeyCode pauseKey = KeyCode.Escape;
     public bool IsPaused { get; private set; }
 
     GameObject pausePanel;
@@ -68,7 +67,7 @@ public class PauseMenu : MonoBehaviour
 
     void Update()
     {
-        if (!Input.GetKeyDown(pauseKey)) return;
+        if (GameInput.Instance == null || !GameInput.Instance.PausePressed) return;
 
         if (IsPaused) { Resume(); return; }
 

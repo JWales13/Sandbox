@@ -12,7 +12,6 @@ public class DialogueUI : MonoBehaviour
     public GameObject panel;     // the dialogue panel root (starts hidden)
     public Text nameText;        // speaker name label
     public Text lineText;        // the current line of dialogue
-    public KeyCode advanceKey = KeyCode.E;
 
     [Header("Behaviour")]
     public float autoCloseDistance = 4f;  // end the talk if player gets this far away
@@ -57,10 +56,11 @@ public class DialogueUI : MonoBehaviour
         // Ignore the same key press that opened the dialogue this frame.
         if (openedThisFrame) { openedThisFrame = false; return; }
 
-        if (Input.GetKeyDown(KeyCode.Escape)) { Close(); return; }
+        var gi = GameInput.Instance;
+        if (gi == null) return;
 
-        if (Input.GetKeyDown(advanceKey) || Input.GetMouseButtonDown(0))
-            Advance();
+        if (gi.PausePressed) { Close(); return; }                 // Esc / + closes
+        if (gi.InteractPressed || gi.SubmitPressed) Advance();     // E / Y / click / Enter / B
     }
 
     public void StartDialogue(string speakerName, string[] dialogueLines, Transform speakerTransform = null)

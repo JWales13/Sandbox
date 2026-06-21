@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 // Base for full-screen menu windows. Handles the shared dance: show/hide the
 // panel, free/lock the cursor, disable/enable player control, and ensure only
@@ -46,6 +48,15 @@ public abstract class UIWindow : MonoBehaviour
         SetCursor(true);
         SetControl(false);
         OnOpened();
+        SelectFirst();                 // give the controller something to navigate from
+    }
+
+    // Focus the first button/selectable so the gamepad stick/d-pad can navigate.
+    void SelectFirst()
+    {
+        if (EventSystem.current == null || panel == null) return;
+        var first = panel.GetComponentInChildren<Selectable>(false);
+        EventSystem.current.SetSelectedGameObject(first != null ? first.gameObject : null);
     }
 
     public void Close()
@@ -56,6 +67,7 @@ public abstract class UIWindow : MonoBehaviour
         if (panel != null) panel.SetActive(false);
         SetCursor(false);
         SetControl(true);
+        if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
         OnClosed();
     }
 

@@ -17,7 +17,6 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] float attackRange = 2.2f;
     [SerializeField] float attackRadius = 1.2f;
     [SerializeField] float attackCooldown = 0.6f;
-    [SerializeField] KeyCode attackKey = KeyCode.Mouse0;
 
     [Header("Animation")]
     [SerializeField] Animator animator;                 // the character model's Animator
@@ -42,7 +41,7 @@ public class PlayerCombat : MonoBehaviour
         if (Cursor.lockState != CursorLockMode.Locked) return;
         if (DialogueUI.Instance != null && DialogueUI.Instance.IsOpen) return;
 
-        if (Input.GetKeyDown(attackKey) && Time.time >= nextAttackTime)
+        if (GameInput.Instance != null && GameInput.Instance.AttackPressed && Time.time >= nextAttackTime)
             Attack();
     }
 

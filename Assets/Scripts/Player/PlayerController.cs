@@ -5,6 +5,7 @@ using UnityEngine;
 // - The player ROOT never rotates; movement is camera-relative.
 // - The character MODEL turns to face the direction it's moving (third person),
 //   or the camera's yaw (first person).
+// All input comes from GameInput (keyboard/mouse + gamepad), never UnityEngine.Input.
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
@@ -16,7 +17,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float turnSpeed = 720f;       // how fast the model turns toward movement (deg/sec)
 
     [Header("Look")]
-    [SerializeField] float mouseSensitivity = 2f;
     [SerializeField] float minPitch = -70f;
     [SerializeField] float maxPitch = 80f;
 
@@ -25,7 +25,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Transform playerCamera;       // Main Camera, child of cameraPivot
     [SerializeField] Vector3 firstPersonOffset = new Vector3(0f, 0f, 0.1f);
     [SerializeField] Vector3 thirdPersonOffset = new Vector3(0f, 0.4f, -3.5f);
-    [SerializeField] KeyCode toggleViewKey = KeyCode.V;
 
     [Header("Character")]
     [SerializeField] Animator animator;
@@ -52,13 +51,18 @@ public class PlayerController : MonoBehaviour
         HandleLook();
         HandleMove();
 
-        if (Input.GetKeyDown(toggleViewKey)) { firstPerson = !firstPerson; ApplyCameraView(); }
+        if (GameInput.Instance != null && GameInput.Instance.ToggleViewPressed)
+        {
+            firstPerson = !firstPerson;
+            ApplyCameraView();
+        }
     }
 
     void HandleLook()
     {
-        yaw += Input.GetAxis("Mouse X") * mouseSensitivity;
-        pitch = Mathf.Clamp(pitch - Input.GetAxis("Mouse Y") * mouseSensitivity, minPitch, maxPitch);
+        Vector2 look = GameInput.Instance != null ? GameInput.Instance.LookDelta : Vector2.zero;
+        yaw += look.x;
+        pitch = Mathf.Clamp(pitch - look.y, minPitch, maxPitch);
 
         // The pivot owns both yaw and pitch, so the camera orbits without rotating the body.
         if (cameraPivot != null) cameraPivot.localRotation = Quaternion.Euler(pitch, yaw, 0f);
@@ -66,22 +70,22 @@ public class PlayerController : MonoBehaviour
 
     void HandleMove()
     {
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
-        Vector3 input = new Vector3(h, 0f, v);
+        Vector2 m = GameInput.Instance != null ? GameInput.Instance.Move : Vector2.zero;
+        Vector3 input = new Vector3(m.x, 0f, m.y);
         if (input.sqrMagnitude > 1f) input.Normalize();
 
         // Camera-relative movement, flattened to the horizontal plane.
         Vector3 moveDir = Quaternion.Euler(0f, yaw, 0f) * input;
 
-        float speed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
+        bool sprint = GameInput.Instance != null && GameInput.Instance.SprintHeld;
+        float speed = sprint ? runSpeed : walkSpeed;
         if (Stats.Instance != null) speed *= Stats.Instance.Get(StatType.MoveSpeed);   // Agility + MoveSpeed perks
         Vector3 velocity = moveDir * speed;
 
         if (controller.isGrounded)
         {
             verticalVelocity = -1f;
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (GameInput.Instance != null && GameInput.Instance.JumpPressed)
                 verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
         else

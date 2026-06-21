@@ -11,7 +11,9 @@ public class PlayerInteractor : MonoBehaviour
     public float interactRange = 3f;      // how close the object must be to the player
     public float maxScanDistance = 12f;   // how far the ray itself reaches
     public LayerMask interactMask = ~0;   // ~0 = everything
-    public KeyCode interactKey = KeyCode.E;
+
+    [Tooltip("Shown in the prompt, e.g. 'E' or 'E / Y'. Just a label — the real binding lives in GameInput.")]
+    public string promptHint = "E";
 
     [Header("UI (optional)")]
     public Text promptText;               // a Legacy UI Text; leave empty to skip
@@ -37,7 +39,7 @@ public class PlayerInteractor : MonoBehaviour
 
         FindInteractable();
 
-        if (current != null && Input.GetKeyDown(interactKey))
+        if (current != null && GameInput.Instance != null && GameInput.Instance.InteractPressed)
             current.Interact(gameObject);
     }
 
@@ -74,7 +76,7 @@ public class PlayerInteractor : MonoBehaviour
     void ShowPrompt(string text)
     {
         if (promptText == null) return;
-        promptText.text = $"[{interactKey}] {text}";
+        promptText.text = $"[{promptHint}] {text}";
         promptText.enabled = true;
     }
 
