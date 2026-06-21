@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6005bc0a2c464c3c9f950b5b7c45494, type: 3}
+  m_Name: Quest_Register_Adventure_Guild
+  m_EditorClassIdentifier: Game::QuestSO
+  questId: adventuring_main_register
+  title: New Quest
+  summary: 
+  discipline: {fileID: 11400000, guid: 76f8af791fb2d4ed7936099421a09b5c, type: 2}
+  autoStart: 0
+  requiredQuest: {fileID: 0}
+  turnInNpcId: adventuring_guildmaster
+  objectives: []
+  rewardCoins: 35
+  rewardSubskill: {fileID: 0}
+  rewardXp: 0
+  rewardItems: []
