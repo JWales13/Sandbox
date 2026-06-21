@@ -1,8 +1,11 @@
+using System.Collections;
 using UnityEngine;
 
-// Left-click melee. Hits enemies in a sphere in front of the player.
-// Damage = baseDamage + Strength*strengthPerDamage + perk MeleeDamage bonus.
-// Grants Combat XP per hit. Ignored while a menu or dialogue is open.
+// The attack DRIVER. On the Attack input it asks the equipped weapon for its
+// AttackBehaviour (or falls back to Unarmed), plays the animation, and triggers
+// the behaviour at the strike frame. It does NOT know melee from ranged from
+// magic — that lives in the AttackBehaviour. Damage = baseDamage + Stats
+// MeleeDamage (Strength + perks + equipment).
 public class PlayerCombat : MonoBehaviour
 {
     [Header("Progression")]
@@ -11,21 +14,16 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] int xpPerHit = 8;
 
     [Header("Damage")]
-    [SerializeField] int baseDamage = 8;   // total = baseDamage + Stats MeleeDamage (Strength + perks)
+    [SerializeField] int baseDamage = 8;            // + Stats MeleeDamage
+    [SerializeField] LayerMask targetMask = ~0;     // what attacks can hit
 
-    [Header("Reach")]
-    [SerializeField] float attackRange = 2.2f;
-    [SerializeField] float attackRadius = 1.2f;
-    [SerializeField] float attackCooldown = 0.6f;
+    [Header("Attack styles")]
+    [Tooltip("Used when no weapon is equipped (fists). Assign a Melee Attack asset.")]
+    [SerializeField] AttackBehaviourSO unarmedAttack;
 
-    [Header("Animation")]
+    [Header("References")]
     [SerializeField] Animator animator;                 // the character model's Animator
-    [SerializeField] string attackTrigger = "Attack";
-    [Tooltip("Delay before the hit registers, so damage lands mid-swing.")]
-    [SerializeField] float hitDelay = 0.25f;
-
-    [Header("Facing")]
-    [SerializeField] PlayerController playerController;  // used for the attack direction
+    [SerializeField] PlayerController playerController;  // for the attack direction
 
     float nextAttackTime;
 
@@ -42,41 +40,54 @@ public class PlayerCombat : MonoBehaviour
         if (DialogueUI.Instance != null && DialogueUI.Instance.IsOpen) return;
 
         if (GameInput.Instance != null && GameInput.Instance.AttackPressed && Time.time >= nextAttackTime)
-            Attack();
+            BeginAttack();
     }
 
-    void Attack()
+    // The current attack style: the equipped weapon's behaviour, else unarmed.
+    AttackBehaviourSO CurrentAttack()
     {
-        nextAttackTime = Time.time + attackCooldown;
-        if (animator != null) animator.SetTrigger(attackTrigger);
-        Invoke(nameof(DealDamage), hitDelay);   // hit connects partway through the swing
+        var weapon = Equipment.Instance != null ? Equipment.Instance.CurrentWeapon : null;
+        var behaviour = weapon != null ? weapon.attackBehaviour : null;
+        return behaviour != null ? behaviour : unarmedAttack;
     }
 
-    void DealDamage()
+    void BeginAttack()
     {
-        int dmg = ComputeDamage();
+        var atk = CurrentAttack();
+        if (atk == null) return;                       // unarmed not assigned yet
 
-        Vector3 facing = playerController != null ? playerController.FacingDirection : transform.forward;
-        facing.y = 0f;
-        if (facing.sqrMagnitude < 0.01f) facing = transform.forward;
-        facing.Normalize();
+        nextAttackTime = Time.time + atk.cooldown;
+        if (animator != null && !string.IsNullOrEmpty(atk.animationTrigger))
+            animator.SetTrigger(atk.animationTrigger);
 
-        Vector3 center = transform.position + Vector3.up * 1.2f + facing * (attackRange * 0.5f);
-        bool hitSomething = false;
+        StartCoroutine(StrikeAfter(atk));
+    }
 
-        foreach (var col in Physics.OverlapSphere(center, attackRadius))
+    // Wait for the swing to reach its impact frame, then resolve the hit.
+    IEnumerator StrikeAfter(AttackBehaviourSO atk)
+    {
+        if (atk.windup > 0f) yield return new WaitForSeconds(atk.windup);
+
+        var ctx = new AttackContext
         {
-            if (col.transform.IsChildOf(transform)) continue;     // ignore self
-            var target = col.GetComponentInParent<IDamageable>();
-            if (target != null && target.IsAlive)
-            {
-                target.TakeDamage(dmg);
-                hitSomething = true;
-            }
-        }
+            attacker = gameObject,
+            origin = transform,
+            facing = Facing(),
+            damage = ComputeDamage(),
+            targetMask = targetMask
+        };
 
-        if (hitSomething && progression != null && combatSubskill != null)
+        bool hit = atk.Perform(ctx);
+        if (hit && progression != null && combatSubskill != null)
             progression.AddSubskillXP(combatSubskill, xpPerHit);
+    }
+
+    Vector3 Facing()
+    {
+        Vector3 f = playerController != null ? playerController.FacingDirection : transform.forward;
+        f.y = 0f;
+        if (f.sqrMagnitude < 0.01f) f = transform.forward;
+        return f.normalized;
     }
 
     int ComputeDamage()

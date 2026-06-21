@@ -46,9 +46,11 @@ public class PlayerHealth : MonoBehaviour, ISaveable, IDamageable
         OnHealthChanged?.Invoke();
     }
 
-    public void TakeDamage(int amount)
+    public void TakeDamage(DamageInfo info)
     {
         if (IsDead) return;
+
+        int amount = info.amount;
 
         // Defense (via the Stats pipeline) reduces incoming damage.
         if (Stats.Instance != null)
@@ -59,6 +61,8 @@ public class PlayerHealth : MonoBehaviour, ISaveable, IDamageable
 
         CurrentHealth = Mathf.Clamp(CurrentHealth - Mathf.Max(0, amount), 0, MaxHealth);
         OnHealthChanged?.Invoke();
+
+        if (CombatFeedback.Instance != null) CombatFeedback.Instance.Report(info);   // hit-stop on being hit
 
         if (CurrentHealth <= 0)
         {

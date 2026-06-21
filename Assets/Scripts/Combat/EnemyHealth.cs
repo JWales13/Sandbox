@@ -1,11 +1,20 @@
+using System.Collections;
 using UnityEngine;
 
-// Health for an enemy / training dummy. Flashes white on hit, shows an overhead
-// HP label, and respawns after a delay (or is destroyed if respawnSeconds <= 0).
+// Health for an enemy / training dummy. Flashes white on hit, gets knocked back
+// (brief hit-stun), shows an overhead HP label, reports to CombatFeedback, and
+// respawns after a delay (or is destroyed if respawnSeconds <= 0). Fires a quest
+// event on death so DefeatEnemy objectives can track it.
 public class EnemyHealth : MonoBehaviour, IDamageable
 {
     public int maxHealth = 30;
     public float respawnSeconds = 4f;
+
+    [Tooltip("Quest id fired on death, for DefeatEnemy objectives (e.g. 'goblin'). Leave blank if not used by quests.")]
+    public string enemyId = "";
+
+    [Tooltip("How long the enemy is staggered/pushed on hit.")]
+    [SerializeField] float hitStun = 0.12f;
 
     public bool IsAlive => !dead;
 
@@ -15,12 +24,14 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     Collider[] colliders;
     Color baseColor;
     bool dead;
+    EnemyAI ai;
 
     void Start()
     {
         renderers = GetComponentsInChildren<Renderer>(true);
         colliders = GetComponentsInChildren<Collider>(true);
         if (renderers.Length > 0) baseColor = renderers[0].material.color;
+        ai = GetComponent<EnemyAI>();
         current = maxHealth;
     }
 
@@ -30,17 +41,39 @@ public class EnemyHealth : MonoBehaviour, IDamageable
             renderers[0].material.color = Time.time < flashUntil ? Color.white : baseColor;
     }
 
-    public void TakeDamage(int amount)
+    public void TakeDamage(DamageInfo info)
     {
-        if (dead || amount <= 0) return;
-        current = Mathf.Max(0, current - amount);
+        if (dead || info.amount <= 0) return;
+
+        current = Mathf.Max(0, current - info.amount);
         flashUntil = Time.time + 0.1f;
-        if (current <= 0) Die();
+
+        if (CombatFeedback.Instance != null) CombatFeedback.Instance.Report(info);
+
+        if (current <= 0) { Die(); return; }
+
+        if (info.knockback.sqrMagnitude > 0.0001f && gameObject.activeInHierarchy)
+            StartCoroutine(Knockback(info.knockback));
+    }
+
+    IEnumerator Knockback(Vector3 displacement)
+    {
+        if (ai != null) ai.enabled = false;    // brief hit-stun: can't act while shoved
+        float t = 0f;
+        while (t < hitStun && !dead)
+        {
+            transform.position += displacement * (Time.deltaTime / hitStun);
+            t += Time.deltaTime;
+            yield return null;
+        }
+        if (ai != null && !dead) ai.enabled = true;
     }
 
     void Die()
     {
         dead = true;
+        if (!string.IsNullOrEmpty(enemyId)) GameEvents.EnemyWasKilled(enemyId);
+
         if (respawnSeconds <= 0f) { Destroy(gameObject); return; }
         SetVisible(false);
         Invoke(nameof(Respawn), respawnSeconds);
@@ -50,6 +83,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     {
         current = maxHealth;
         dead = false;
+        if (ai != null) ai.enabled = true;
         SetVisible(true);
     }
 

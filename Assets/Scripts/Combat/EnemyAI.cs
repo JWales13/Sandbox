@@ -62,7 +62,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (Time.time < nextAttackTime) return;
         nextAttackTime = Time.time + attackCooldown;
-        if (playerHealth != null) playerHealth.TakeDamage(attackDamage);
+        if (playerHealth != null) playerHealth.TakeDamage(DamageInfo.Simple(attackDamage, gameObject));
     }
 
     void Wander()

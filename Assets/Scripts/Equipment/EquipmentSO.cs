@@ -19,6 +19,10 @@ public class EquipmentSO : ItemSO
     public ToolType toolType = ToolType.None;     // Weapon-slot items can be tools
     public List<StatModifier> modifiers = new List<StatModifier>();
 
+    [Header("Combat")]
+    [Tooltip("How this weapon attacks (Melee / Ranged / Magic asset). Empty = falls back to PlayerCombat's Unarmed.")]
+    public AttackBehaviourSO attackBehaviour;
+
     [Header("Held visual (Weapon slot)")]
     public GameObject worldModel;                 // prefab shown in the hand when equipped
     public Vector3 gripPosition;
